@@ -74,4 +74,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     //Most Error making Library
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    //Coil Image Loading
+    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
 }

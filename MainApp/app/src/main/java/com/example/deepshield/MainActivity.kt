@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 
 import androidx.compose.ui.Modifier
+import com.example.deepshield.presentation.Navigation.MyApp
 import com.example.deepshield.ui.theme.DeepShieldTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
             DeepShieldTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                    Box(modifier = Modifier.padding(innerPadding)){
-                     Text("Hello world")
+                   MyApp()
                    }
                 }
             }
