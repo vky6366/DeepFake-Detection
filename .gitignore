@@ -1,0 +1,7 @@
+# Ignore entire folders
+processed_frames/
+uploads/
+
+# Ignore specific files inside directories
+Model/*.pth
+Utils/*.dat

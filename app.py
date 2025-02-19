@@ -17,7 +17,7 @@ app = Flask(__name__)
 # ✅ Paths & Configurations
 UPLOAD_FOLDER = "uploads/"
 FRAME_FOLDER = "processed_frames/"
-MODEL_PATH = "Model/best_b3_model_epoch4.pth"
+MODEL_PATH = r"D:\DeepFake-Detection\Model\best_b3_model_epoch2.pth"
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -26,9 +26,10 @@ os.makedirs(FRAME_FOLDER, exist_ok=True)
 # ✅ Load Deepfake Detection Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = DeepfakeDetector().to(device)
+print(device)
 
 try:
-    checkpoint = torch.load(MODEL_PATH, map_location=device)
+    checkpoint = torch.load(MODEL_PATH, map_location=device,weights_only=False)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     print("✅ Model successfully loaded!")
