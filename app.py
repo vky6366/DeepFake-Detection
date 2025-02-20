@@ -17,7 +17,7 @@ app = Flask(__name__)
 # ✅ Paths & Configurations
 UPLOAD_FOLDER = "uploads/"
 FRAME_FOLDER = "processed_frames/"
-MODEL_PATH = r"D:\DeepFake-Detection\Model\best_b3_model_epoch2.pth"
+MODEL_PATH = r"Model\best_b3_model_epoch2.pth"
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
