@@ -77,4 +77,6 @@ dependencies {
     //Coil Image Loading
     implementation("io.coil-kt.coil3:coil-compose:3.1.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+
 }
