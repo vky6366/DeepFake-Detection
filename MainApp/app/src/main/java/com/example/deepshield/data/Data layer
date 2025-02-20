@@ -1,2 +1,11 @@
 //fetches data
 //data layer.txt is for my own  notes making ignore this
+
+
+//Sucess Json
+
+{
+    "message": "✅ Prediction Complete!",
+    "prediction": "FAKE",
+    "score": 0.9951669523056518
+}
