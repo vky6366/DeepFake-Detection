@@ -3,7 +3,7 @@ import cv2
 import torch
 import numpy as np
 import dlib
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
@@ -14,10 +14,12 @@ from PIL import Image
 # ✅ Initialize Flask App
 app = Flask(__name__)
 
-# ✅ Paths & Configurations
-UPLOAD_FOLDER = "uploads/"
-FRAME_FOLDER = "processed_frames/"
-MODEL_PATH = r"Model\best_b3_model_epoch2.pth"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Define paths relative to the base directory
+MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b3_model_epoch2.pth')
+FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -29,7 +31,7 @@ model = DeepfakeDetector().to(device)
 print(device)
 
 try:
-    checkpoint = torch.load(MODEL_PATH, map_location=device,weights_only=False)
+    checkpoint = torch.load(MODEL_PATH, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     print("✅ Model successfully loaded!")
@@ -123,6 +125,42 @@ def upload_and_process():
         "prediction": is_fake,
         "score": avg_probability
     })
+
+
+@app.route("/get_3rd_frame", methods=["GET"])
+def get_3rd_frame():
+    """Returns the 3rd frame from the specified video folder in processed_frames."""
+
+    # ✅ Step 1: Get video_name from query parameters
+    video_name = request.args.get("video_name")  # Example: id13_id7_0001
+
+    if not video_name:
+        return jsonify({"error": "Missing video_name parameter"}), 400
+
+    # ✅ Step 2: Construct the folder path
+    video_folder_path = os.path.join(FRAME_FOLDER, video_name)
+
+    if not os.path.exists(video_folder_path):
+        return jsonify({"error": f"Video folder '{video_name}' not found"}), 400
+
+    # ✅ Step 3: Get all frames in sorted order
+    frame_list = sorted(
+        os.listdir(video_folder_path), 
+        key=lambda x: int(x.split("_")[-1].split(".")[0])  # Sort frames numerically
+    )
+
+    # ✅ Step 4: Ensure at least 3 frames exist
+    if len(frame_list) < 3:
+        return jsonify({"error": f"Not enough frames in '{video_name}'"}), 400
+
+    # ✅ Step 5: Return the 3rd frame (Index 2)
+    third_frame_path = os.path.join(video_folder_path, frame_list[2])
+
+    if os.path.exists(third_frame_path):
+        return send_file(third_frame_path, mimetype="image/jpeg")
+    else:
+        return jsonify({"error": "3rd frame not found"}), 400
+
 
 # ✅ Run Flask App
 if __name__ == "__main__":
