@@ -2,3 +2,4 @@ processed_frames/
 uploads/
 Model/*.pth
 Utils/*.dat
+*.kt~
