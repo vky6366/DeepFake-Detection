@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HomeScreen
 import com.example.deepshield.presentation.viewModel.MyViewModel
 
@@ -13,7 +14,7 @@ fun MyApp(viewModel: MyViewModel = hiltViewModel()) {
     val navController= rememberNavController()
     NavHost(navController = navController, startDestination =HOMESCREEN ) {
         composable<HOMESCREEN> {
-            HomeScreen()
+            DeepFakeVideoScreen()
         }
 
     }
