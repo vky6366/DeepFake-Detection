@@ -3,13 +3,14 @@ import cv2
 import torch
 import numpy as np
 import dlib
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
 from Model.model import DeepfakeDetector  # Import trained model
 from Utils.preprocess import extract_frames, zoom_into_face  # Preprocessing functions
 from PIL import Image
+import io
 
 # ✅ Initialize Flask App
 app = Flask(__name__)
@@ -48,14 +49,19 @@ def get_inference_transforms():
 
 transform = get_inference_transforms()
 
+# ✅ Global Variable to Store 3rd Frame Path
+latest_3rd_frame = None
+
 @app.route("/", methods=["GET"])
 def home():
     return "✅ Deepfake Detection API is Running!"
 
 @app.route("/upload", methods=["POST"])
 def upload_and_process():
-    """Handles video upload, extracts frames, and predicts deepfake probability."""
+    """Handles video upload, extracts frames, stores the 3rd frame, and predicts deepfake probability."""
     
+    global latest_3rd_frame  # Use global variable for storing 3rd frame
+
     # ✅ Step 1: File Handling
     if "video" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -76,7 +82,12 @@ def upload_and_process():
 
     extract_frames(filepath, frame_output_folder, frame_interval=3)
 
-    # ✅ Step 3: Process Faces
+    # ✅ Step 3: Store 3rd Frame (If Exists)
+    frame_list = sorted(os.listdir(frame_output_folder))
+    if len(frame_list) >= 3:
+        latest_3rd_frame = os.path.join(frame_output_folder, frame_list[2])  # Store 3rd frame path
+
+    # ✅ Step 4: Process Faces
     processed_images = []
     for img_file in os.listdir(frame_output_folder):
         img_path = os.path.join(frame_output_folder, img_file)
@@ -87,7 +98,7 @@ def upload_and_process():
     if not processed_images:
         return jsonify({"error": "No faces detected in the video"}), 400
 
-    # ✅ Step 4: Predict Deepfake Probability
+    # ✅ Step 5: Predict Deepfake Probability
     predictions = []
     with torch.no_grad():
         for img_file in tqdm(os.listdir(frame_output_folder), desc="🔍 Predicting Deepfakes"):
@@ -110,7 +121,7 @@ def upload_and_process():
             probability = float(torch.sigmoid(torch.tensor(output)).item())  # Apply Sigmoid Activation
             predictions.append(probability)
 
-    # ✅ Step 5: Final Decision
+    # ✅ Step 6: Final Decision
     if not predictions:
         return jsonify({"error": "No valid frames were processed for prediction."}), 400
 
@@ -119,48 +130,36 @@ def upload_and_process():
 
     print(f"🎯 Prediction: {is_fake}, Score: {avg_probability:.4f}")
 
-    # ✅ Step 6: Return JSON Response
     return jsonify({
         "message": "✅ Prediction Complete!",
         "prediction": is_fake,
         "score": avg_probability
     })
 
-
 @app.route("/get_3rd_frame", methods=["GET"])
 def get_3rd_frame():
-    """Returns the 3rd frame from the specified video folder in processed_frames."""
+    """Returns the 3rd frame as a raw byte array in JSON response."""
 
-    # ✅ Step 1: Get video_name from query parameters
-    video_name = request.args.get("video_name")  # Example: id13_id7_0001
+    global latest_3rd_frame  # Use global variable for 3rd frame
 
-    if not video_name:
-        return jsonify({"error": "Missing video_name parameter"}), 400
+    if not latest_3rd_frame or not os.path.exists(latest_3rd_frame):
+        return jsonify({"error": "3rd frame not found or not available"}), 400
 
-    # ✅ Step 2: Construct the folder path
-    video_folder_path = os.path.join(FRAME_FOLDER, video_name)
+    try:
+        # ✅ Read Image as Bytes
+        with open(latest_3rd_frame, "rb") as img_file:
+            img_bytes = img_file.read()
 
-    if not os.path.exists(video_folder_path):
-        return jsonify({"error": f"Video folder '{video_name}' not found"}), 400
+        # Clear the stored frame after sending to prevent interference
+        latest_3rd_frame = None
 
-    # ✅ Step 3: Get all frames in sorted order
-    frame_list = sorted(
-        os.listdir(video_folder_path), 
-        key=lambda x: int(x.split("_")[-1].split(".")[0])  # Sort frames numerically
-    )
+        return jsonify({
+            "message": "✅ 3rd Frame Retrieved",
+            "image_bytes": list(img_bytes)  # Convert bytes to a list for JSON serialization
+        })
 
-    # ✅ Step 4: Ensure at least 3 frames exist
-    if len(frame_list) < 3:
-        return jsonify({"error": f"Not enough frames in '{video_name}'"}), 400
-
-    # ✅ Step 5: Return the 3rd frame (Index 2)
-    third_frame_path = os.path.join(video_folder_path, frame_list[2])
-
-    if os.path.exists(third_frame_path):
-        return send_file(third_frame_path, mimetype="image/jpeg")
-    else:
-        return jsonify({"error": "3rd frame not found"}), 400
-
+    except Exception as e:
+        return jsonify({"error": f"Failed to read frame: {str(e)}"}), 500
 
 # ✅ Run Flask App
 if __name__ == "__main__":

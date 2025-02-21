@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 
 # Set paths
-video_folder_fake = r"D:\videos\New_Dataset\Train\Fake"
-video_folder_real = r"D:\videos\New_Dataset\Train\Real"
-output_folder_fake = r"D:\videos\New_Dataset\Train\Fake_Frames"
-output_folder_real = r"D:\videos\New_Dataset\Train\Real_Frames"
+video_folder_fake = r"D:\videos\New_Dataset\Validation\Fake_video"
+video_folder_real = r"D:\videos\New_Dataset\Validation\Real_video"
+output_folder_fake = r"D:\videos\New_Dataset\Validation\Fake_Frame"
+output_folder_real = r"D:\videos\New_Dataset\Validation\Real_Frame"
 
 os.makedirs(output_folder_fake, exist_ok=True)
 os.makedirs(output_folder_real, exist_ok=True)

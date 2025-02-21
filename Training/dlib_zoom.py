@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 # ✅ Load dlib models (Face Detector + Landmark Predictor)
 detector = dlib.get_frontal_face_detector()  # Face detection
-predictor = dlib.shape_predictor(r"D:\DeepFake-Detection\shape_predictor_68_face_landmarks.dat")  # Load landmarks model
+predictor = dlib.shape_predictor(r"D:\DeepFake-Detection\Utils\shape_predictor_68_face_landmarks.dat")  # Load landmarks model
 
 def zoom_into_face(image_path, output_folder, zoom_factor=1.3, target_size=(224, 224)):
     """Detects face, finds landmarks, adjusts zoom, and saves cropped face."""
@@ -71,11 +71,11 @@ def process_folder(input_folder, output_folder):
 
 # Example Usage
 if __name__ == "__main__":
-    real_input_folder = r"D:\videos\Test3\Real_Frame"
-    real_output_folder = r"D:\videos\Test3\Real"
+    real_input_folder = r"D:\videos\New_Dataset\Validation\Real_Frame"
+    real_output_folder = r"D:\videos\New_Dataset\Validation\Real"
     
-    fake_input_folder = r"D:\videos\Test3\Fake_Frame"
-    fake_output_folder = r"D:\videos\Test3\Fake"
+    fake_input_folder = r"D:\videos\New_Dataset\Validation\Fake_Frame"
+    fake_output_folder = r"D:\videos\New_Dataset\Validation\Fake"
     print("--------------------Starting Real----------------------")
     process_folder(real_input_folder, real_output_folder)
     print("--------------------Starting Fake----------------------")
