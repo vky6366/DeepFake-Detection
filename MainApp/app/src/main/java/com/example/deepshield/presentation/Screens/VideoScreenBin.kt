@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import com.shashank.sony.fancytoastlib.FancyToast
 fun VideoScreenSelector(viewmodel: MyViewModel = hiltViewModel(), navController: NavController) {
     val videouri= remember { mutableStateOf("") }
     val data = remember { mutableStateOf<Bitmap?>(null) }
+    val navigationFlag = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val composition by rememberLottieComposition(
@@ -61,23 +63,39 @@ fun VideoScreenSelector(viewmodel: MyViewModel = hiltViewModel(), navController:
     val medialauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia(), onResult = {uri->
             videouri.value = uri.toString()
+            navigationFlag.value = false
         }
     )
-    if(videouri.value.isNotEmpty()){
-//      data.value = getVideoThumbnail(context,videouri.value.toUri())
-        Log.d("VideoThumbnail","$data")
-        FancyToast.makeText(context,"Video Selected !",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
-//        if (data.value != null){
-//
-//        navController.navigate(VIDEOUPLOADSCREENROUTE(videoUri = videouri.value, imageUri = data.value.toString()))
-//
-//        }else{
-//
-//        }
-        navController.navigate(VIDEOUPLOADSCREENROUTE(videoUri = videouri.value, imageUri = data.value.toString()))
+    LaunchedEffect(videouri.value) {
 
-    }else{
-        FancyToast.makeText(context,"Select video",FancyToast.LENGTH_SHORT,FancyToast.WARNING,false).show()
+        if (videouri.value.isNotEmpty() && !navigationFlag.value) {
+            navigationFlag.value = true
+
+            Log.d("VideoThumbnail", "$data")
+            FancyToast.makeText(
+                context,
+                "Video Selected !",
+                FancyToast.LENGTH_SHORT,
+                FancyToast.SUCCESS,
+                false
+            ).show()
+
+            navController.navigate(
+                VIDEOUPLOADSCREENROUTE(
+                    videoUri = videouri.value,
+                    imageUri = data.value.toString()
+                )
+            )
+
+        } else {
+            FancyToast.makeText(
+                context,
+                "Select video",
+                FancyToast.LENGTH_SHORT,
+                FancyToast.WARNING,
+                false
+            ).show()
+        }
     }
     Column (modifier = Modifier.fillMaxSize() ,horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center){
