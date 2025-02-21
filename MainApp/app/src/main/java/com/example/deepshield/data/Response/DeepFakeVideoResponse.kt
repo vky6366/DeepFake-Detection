@@ -8,3 +8,9 @@ data class DeepFakeVideoResponse(
     val prediction: String,
     val score: Double
 )
+//{
+//    "message": "✅ Prediction Complete!",
+//    "prediction": "FAKE",
+//    "score": 0.9951669523056518
+//}
+//{"message":"\u2705 Prediction Complete!","prediction":"FAKE","score":0.9951669523056518}

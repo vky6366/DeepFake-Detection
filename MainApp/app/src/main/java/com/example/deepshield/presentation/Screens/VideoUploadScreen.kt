@@ -58,6 +58,7 @@ fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: 
             onClick = {
            FancyToast.makeText(context,"Video Upload",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
 
+
                 navController.navigate(VIDEOPROCESSINGSCREEN(imageUri = imageUri, videoUri = videoUri))
 
 
