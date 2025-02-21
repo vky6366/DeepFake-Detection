@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.iml
 .gradle
 /local.properties
@@ -16,3 +17,5 @@ local.properties
 /Constants/Constants.kt
 Constants
 Constsnts.kt
+=======
+>>>>>>> 80b4a5da112cf39a54928b251edb74469bdf0efb

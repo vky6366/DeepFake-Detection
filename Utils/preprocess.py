@@ -4,8 +4,12 @@ import dlib
 from pathlib import Path
 
 detector = dlib.get_frontal_face_detector()
-#predictor = dlib.shape_predictor("Utils\shape_predictor_68_face_landmarks.dat")
-predictor = dlib.shape_predictor(r"d:/KotlinApp/DeepFake-Detection/Utils/shape_predictor_68_face_landmarks.dat")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Define path relative to the base directory
+predictor_path = os.path.join(BASE_DIR, 'shape_predictor_68_face_landmarks.dat')
+predictor = dlib.shape_predictor(predictor_path)
+
 
 def extract_frames(video_path, output_folder, frame_interval=3):
     """Extracts frames from video."""

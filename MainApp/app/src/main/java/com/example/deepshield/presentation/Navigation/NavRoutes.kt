@@ -11,3 +11,9 @@ data class DEEPFAKEVIDEOOUTPUTSCREEN(
     val prediction:String,
     val score:Double
 )
+
+@Serializable
+data class VIDEOUPLOADSCREENROUTE(val videoUri:String)
+
+@Serializable
+object VIDEOSELECTIONSCREEN

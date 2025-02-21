@@ -35,7 +35,7 @@ class RepositoryImpl:Repository {
                 url = "${Constants.BASE_URL}${Constants.VIDEO_ROUTE}",  // ✅ Corrected URL Concatenation
                 formData = formData {
                     append("video",
-                        inputStream.readBytes(),  // ✅ Correct way to read InputStream in Ktor
+                        inputStream.readBytes(),  // ✅ Correct way to read InputStream
                         Headers.build {
                             append(HttpHeaders.ContentType, "video/mp4")
                             append(HttpHeaders.ContentDisposition, "form-data; name=\"video\"; filename=\"video.mp4\"")
