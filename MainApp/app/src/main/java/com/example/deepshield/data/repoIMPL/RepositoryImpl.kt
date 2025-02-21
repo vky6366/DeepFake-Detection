@@ -1,15 +1,18 @@
 package com.example.deepshield.data.repoIMPL
 
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.core.net.toUri
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
+import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -53,5 +56,23 @@ class RepositoryImpl:Repository {
             inputStream.close() // ✅ Close InputStream to avoid memory leaks
         }
     }
+
+    override suspend fun getFrameFromServer(): Flow<ApiResult<Bitmap>> = flow {
+        emit(ApiResult.Loading)
+        try {
+            // Perform Ktor GET request and parse response
+            val response: GetFrameResponse = KtorClient.client.get("http://192.168.31.80:5000/get_3rd_frame").body()
+
+            // Convert image_bytes to Bitmap
+            response.toBitmap()?.let { bitmap ->
+                emit(ApiResult.Success(bitmap))
+            } ?: emit(ApiResult.Error("Failed to convert bytes to Bitmap"))
+
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        }
+    }
+
+
 
 }

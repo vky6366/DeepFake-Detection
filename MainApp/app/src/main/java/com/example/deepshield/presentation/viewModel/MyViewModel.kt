@@ -1,11 +1,13 @@
 package com.example.deepshield.presentation.viewModel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.deepshield.data.repoIMPL.RepositoryImpl
 import com.example.deepshield.domain.StateHandling.ApiResult
 import com.example.deepshield.domain.StateHandling.DeepFakeVideoResponseState
+import com.example.deepshield.domain.StateHandling.FrameResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +19,13 @@ import javax.inject.Inject
 class MyViewModel @Inject constructor(private val repositoryImpl: RepositoryImpl):ViewModel() {
     private val _uploadDeepFakeVideoState= MutableStateFlow(DeepFakeVideoResponseState())
     val uploadDeepFakeVideoState= _uploadDeepFakeVideoState.asStateFlow()
-
+    // ✅ State for fetching a frame
+    private val _frameState = MutableStateFlow(FrameResponseState())
+    val frameState = _frameState.asStateFlow()
+init {
+    getFrameFromServer()
+    Log.d("APIRESPONSE", "${frameState.value.bitmap}")
+}
     fun uploadVideoToDeepFakeServer(context: Context, videoUri: String){
         viewModelScope.launch {
             repositoryImpl.uploadVideoToDeepFakeServer(context = context, videoUri = videoUri).collectLatest {
@@ -37,5 +45,22 @@ class MyViewModel @Inject constructor(private val repositoryImpl: RepositoryImpl
             }
         }
 
+    }
+    fun getFrameFromServer() {
+        viewModelScope.launch {
+            repositoryImpl.getFrameFromServer().collectLatest { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        _frameState.value = FrameResponseState(isLoading = true)
+                    }
+                    is ApiResult.Error -> {
+                        _frameState.value = FrameResponseState(isLoading = false, error = result.message)
+                    }
+                    is ApiResult.Success -> {
+                        _frameState.value = FrameResponseState(isLoading = false, bitmap = result.data)
+                    }
+                }
+            }
+        }
     }
 }

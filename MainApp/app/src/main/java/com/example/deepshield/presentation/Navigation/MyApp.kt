@@ -10,6 +10,7 @@ import androidx.navigation.toRoute
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HomeScreen
+import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
 import com.example.deepshield.presentation.Screens.VideoUploadingScreenBin
 import com.example.deepshield.presentation.viewModel.MyViewModel
@@ -42,7 +43,12 @@ fun MyApp() {
         }
         composable<VIDEOUPLOADSCREENROUTE> {backstack->
             val data:VIDEOUPLOADSCREENROUTE = backstack.toRoute()
-            VideoUploadingScreenBin(videoUri = data.videoUri)
+            VideoUploadingScreenBin(videoUri = data.videoUri, imageUri = data.imageUri, navController = navController)
+        }
+        composable<VIDEOPROCESSINGSCREEN> {backstackdata->
+            val data:VIDEOPROCESSINGSCREEN =backstackdata.toRoute()
+            VideoProcessingScreen(videoUri = data.videoUri, imageUri = data.imageUri, navController = navController)
+
         }
 
 
