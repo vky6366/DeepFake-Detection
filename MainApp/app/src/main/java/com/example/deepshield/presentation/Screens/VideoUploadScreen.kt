@@ -1,5 +1,6 @@
 package com.example.deepshield.presentation.Screens
 
+import android.net.Uri
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -24,13 +25,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import coil3.Uri
+import androidx.navigation.NavController
 import com.example.deepshield.R
+import com.example.deepshield.presentation.Navigation.VIDEOPROCESSINGSCREEN
 import com.example.deepshield.presentation.viewModel.MyViewModel
 import com.shashank.sony.fancytoastlib.FancyToast
 
 @Composable
-fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: String) {
+fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: String,imageUri: String,navController: NavController) {
     val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -54,7 +56,10 @@ fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: 
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = {
-         FancyToast.makeText(context,"Video Upload",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
+           FancyToast.makeText(context,"Video Upload",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
+
+                navController.navigate(VIDEOPROCESSINGSCREEN(imageUri = imageUri, videoUri = videoUri))
+
 
             }, modifier = Modifier
                 .fillMaxWidth(0.85f)
