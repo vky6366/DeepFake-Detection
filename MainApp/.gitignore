@@ -1,0 +1,21 @@
+<<<<<<< HEAD
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+/Constants/Constants.kt
+Constants
+Constsnts.kt
+=======
+>>>>>>> 80b4a5da112cf39a54928b251edb74469bdf0efb

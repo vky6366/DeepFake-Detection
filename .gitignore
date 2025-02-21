@@ -2,6 +2,9 @@ processed_frames/
 uploads/
 Model/*.pth
 Utils/*.dat
+<<<<<<< HEAD
+*.kt~
+=======
 *.iml
 .gradle
 /local.properties
@@ -20,3 +23,4 @@ local.properties
 /Constants/Constants.kt
 Constants
 Constants.kt
+>>>>>>> 80b4a5da112cf39a54928b251edb74469bdf0efb

@@ -77,4 +77,10 @@ dependencies {
     //Coil Image Loading
     implementation("io.coil-kt.coil3:coil-compose:3.1.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+    implementation ("io.github.shashank02051997:FancyToast:2.0.2")
+    //mediaplayer
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+
 }

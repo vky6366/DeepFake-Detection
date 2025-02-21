@@ -12,6 +12,9 @@ import androidx.compose.material3.Text
 
 import androidx.compose.ui.Modifier
 import com.example.deepshield.presentation.Navigation.MyApp
+import com.example.deepshield.presentation.Screens.VideoScreenSelector
+import com.example.deepshield.presentation.Utils.LoadingIndicator
+
 import com.example.deepshield.ui.theme.DeepShieldTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,12 +27,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             DeepShieldTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                   Box(modifier = Modifier.padding(innerPadding)){
-                   MyApp()
-                   }
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                            MyApp()
+
+
+
+                    }
+
                 }
             }
         }
     }
+
 }
+
 
