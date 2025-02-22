@@ -2,6 +2,7 @@ package com.example.deepshield.data.repoIMPL
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.core.net.toUri
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
@@ -48,10 +49,12 @@ class RepositoryImpl:Repository {
             )
 
             val apiResponse:DeepFakeVideoResponse = response.body()
+            Log.d("APIRESPONSE", "${apiResponse}")
             emit(ApiResult.Success(apiResponse))
 
         } catch (e: Exception) {
             emit(ApiResult.Error(e.message ?: "Unknown error"))
+            Log.d("APIRESPONSE", "${e.message}")
         } finally {
             inputStream.close() // ✅ Close InputStream to avoid memory leaks
         }
