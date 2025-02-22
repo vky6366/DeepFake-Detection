@@ -10,10 +10,13 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,7 +47,13 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
+import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 import com.example.deepshield.presentation.Utils.AnimatedText
 import com.example.deepshield.presentation.Utils.LoadingIndicator
 import com.example.deepshield.presentation.viewModel.MyViewModel
@@ -72,6 +81,12 @@ fun VideoProcessingScreen(
             animation = tween(durationMillis = 1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
+    )
+    val lottiecomposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.button))
+    val progress2 by animateLottieCompositionAsState(
+        composition = lottiecomposition,
+        iterations = LottieConstants.IterateForever,
+        speed = 0.75f
     )
 
     LaunchedEffect(Unit) {
@@ -148,6 +163,30 @@ fun VideoProcessingScreen(
         }
         else if(deepfakeResponseState.value.error.isNullOrEmpty()){
 //            FancyToast.makeText(context,"Error in processing",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
+        }
+        Box(
+            contentAlignment = Alignment.Center,  // Centers the text inside the animation
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .height(50.dp)
+                .clickable {
+                  navController.navigate(VIDEOSELECTIONSCREEN)
+                }
+        ) {
+            // Lottie Animation
+            LottieAnimation(
+                composition = lottiecomposition,
+                progress = { progress2 },
+                modifier = Modifier.fillMaxWidth()  // Makes animation fill the Box
+            )
+
+            // Overlayed Text
+            Text(
+                text = "New Video",  // Your desired text
+                color = Color.White,  // Adjust color for visibility
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
         //0.5 ke niche real , 0.5 = fake and up fake
     }
