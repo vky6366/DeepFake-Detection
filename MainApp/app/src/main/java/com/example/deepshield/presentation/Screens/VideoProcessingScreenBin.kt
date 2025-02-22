@@ -12,8 +12,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,16 +29,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
+import com.example.deepshield.R
+import com.example.deepshield.presentation.Utils.AnimatedText
 import com.example.deepshield.presentation.Utils.LoadingIndicator
 import com.example.deepshield.presentation.viewModel.MyViewModel
+import com.shashank.sony.fancytoastlib.FancyToast
+
+
 
 @Composable
 fun VideoProcessingScreen(
@@ -44,6 +62,8 @@ fun VideoProcessingScreen(
     val deepfakeResponseState = viewmodel.uploadDeepFakeVideoState.collectAsState()
     val context = LocalContext.current
     val data = remember { mutableStateOf<Bitmap?>(null) }
+
+    // Animation transition (Only runs when loading)
     val infiniteTransition = rememberInfiniteTransition()
     val animatedAlpha by infiniteTransition.animateFloat(
         initialValue = 0.2f,
@@ -61,30 +81,76 @@ fun VideoProcessingScreen(
     }
 
     // Observe API Response
-
     Log.d("APIRESPONSE2", "${deepfakeResponseState.value.data?.prediction}")
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+        horizontalAlignment = Alignment.CenterHorizontally
 
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
         data.value?.let { bitmap ->
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Video Thumbnail",
-                modifier = Modifier.size(200.dp) .graphicsLayer(
-                    alpha = animatedAlpha, // Apply animated transparency
-                    scaleX = 0.8f, // Reduce size to 80%
-                    scaleY = 0.8f
+            Card(
+                shape = CircleShape,  // Makes it circular
+                elevation = CardDefaults.elevatedCardElevation(8.dp),  // Adds shadow effect
+                modifier = Modifier
+                    .size(320.dp)  // Set size of the circular box
+                    .padding(16.dp)
+            ) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Video Thumbnail",
+                    modifier = Modifier
+                        .size(300.dp)  // Image size inside the circle
+                        .clip(CircleShape)  // Clips image to circular shape
+                        .graphicsLayer(
+                            alpha = if (deepfakeResponseState.value.isLoading) animatedAlpha else 1f,
+                            scaleX = 0.9f,
+                            scaleY = 0.9f
+                        )
                 )
 
-            )
+            }
+        }//end
+        Spacer(modifier = Modifier.height(16.dp))
+        if(deepfakeResponseState.value.isLoading) {
+            FancyToast.makeText(context,"processing",FancyToast.LENGTH_SHORT,FancyToast.CONFUSING,false).show()
+           // Text("Processing...", color = colorResource(id= R .color.themecolour))
+            AnimatedText()
         }
+        else if (deepfakeResponseState.value.data != null) {
+            val score = deepfakeResponseState.value.data?.score ?: 0.0
+            val formattedScore = String.format("%.3f", score)
+            if( deepfakeResponseState.value.data?.prediction == "FAKE") {
+                Text("Prediction: ${deepfakeResponseState.value.data?.prediction}", color = Color.Red,
+                    fontSize = 35.sp,  // Keep font size constant
+                    fontWeight = FontWeight.Bold,)
+            }else{
+                Text("Prediction: ${deepfakeResponseState.value.data?.prediction}", color = Color.Green,
+                    fontSize = 35.sp,  // Keep font size constant
+                    fontWeight = FontWeight.Bold,)
+            }
+            if (deepfakeResponseState.value.data?.score!! < 0.5){
+                Text("Score: ${formattedScore}", color = Color.Green,
+                    fontSize = 35.sp,  // Keep font size constant
+                    fontWeight = FontWeight.Bold)
 
-        if(deepfakeResponseState.value.data != null) {
-            Text("Message: ${deepfakeResponseState.value.data?.prediction}")
+            }else if (deepfakeResponseState.value.data?.score!! == 0.5){
+                Text("Score: ${formattedScore}", color = Color.Red,
+                    fontSize = 35.sp,  // Keep font size constant
+                    fontWeight = FontWeight.Bold)
+            }else{
+                Text("Score: ${formattedScore}", color = Color.Red,
+                    fontSize = 35.sp,  // Keep font size constant
+                    fontWeight = FontWeight.Bold)
+            }
+
         }
+        else if(deepfakeResponseState.value.error.isNullOrEmpty()){
+//            FancyToast.makeText(context,"Error in processing",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
+        }
+        //0.5 ke niche real , 0.5 = fake and up fake
     }
+
 }
+

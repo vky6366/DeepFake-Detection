@@ -39,7 +39,7 @@ fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: 
             val mediaItem = MediaItem.fromUri(videoUri)
             setMediaItem(mediaItem)
             prepare()
-            playWhenReady = true // Auto-play
+            playWhenReady = false// Auto-play
         }
     }
     Spacer(modifier = Modifier.height(32.dp))

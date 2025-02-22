@@ -11,9 +11,9 @@ import kotlinx.serialization.json.Json
 object KtorClient {
     val client = HttpClient(CIO){
         install(HttpTimeout) {
-            requestTimeoutMillis = 120_000 // 120 seconds (2 minutes)
-            connectTimeoutMillis = 60_000  // 60 seconds (1 minute)
-            socketTimeoutMillis = 120_000  // 120 seconds (2 minutes)
+            requestTimeoutMillis = 300_000 // 120 seconds (2 minutes)
+            connectTimeoutMillis = 300_000  // 60 seconds (1 minute)
+            socketTimeoutMillis = 300_000  // 120 seconds (2 minutes)
         }
         install(ContentNegotiation){
             json(
