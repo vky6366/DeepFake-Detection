@@ -18,7 +18,7 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Define paths relative to the base directory
-MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b3_model_epoch2.pth')
+MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b3_model_epoch6.pth')
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 
@@ -126,7 +126,7 @@ def upload_and_process():
         return jsonify({"error": "No valid frames were processed for prediction."}), 400
 
     avg_probability = np.mean(predictions)  # Compute Mean Probability
-    is_fake = "FAKE" if avg_probability > 0.5 else "REAL"
+    is_fake = "FAKE" if avg_probability > 0.6 else "REAL"
 
     print(f"🎯 Prediction: {is_fake}, Score: {avg_probability:.4f}")
 
