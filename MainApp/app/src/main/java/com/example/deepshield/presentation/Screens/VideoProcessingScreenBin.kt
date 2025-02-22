@@ -25,33 +25,81 @@ import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
 import com.example.deepshield.presentation.viewModel.MyViewModel
 
+//@Composable
+//fun VideoProcessingScreen(viewmodel:MyViewModel= hiltViewModel(),
+//                         imageUri:String ,videoUri:String,
+//                          navController: NavController) {
+//    val deepfakeresponsestate= viewmodel.uploadDeepFakeVideoState.collectAsState()
+//    val context = LocalContext.current
+//    val data = remember { mutableStateOf<Bitmap?>(null) }
+//    LaunchedEffect(Unit) {
+//        data.value = getVideoThumbnail(context,videoUri.toUri())
+//        viewmodel.uploadVideoToDeepFakeServer(context = context, videoUri = videoUri)
+//
+//    }
+//
+//    if(deepfakeresponsestate.value.data != null){
+//        Log.d("APIRESPONSE", "${deepfakeresponsestate.value.data}")
+//    }
+//      val imageUri = imageUri.toUri() //Frame
+//
+//    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center)
+//    {
+//        Text("Implemenation")
+//        data.value?.let { bitmap ->
+//           Image(
+//               bitmap = bitmap.asImageBitmap(),
+//               contentDescription = "Video Thumbnail",
+//               modifier = Modifier.size(200.dp) // Adjust the size as needed
+//            )
+//       }
+//
+//
+//
+//
+//    }
+//
+//
+//}
 @Composable
-fun VideoProcessingScreen(viewmodel:MyViewModel= hiltViewModel(),
-                         imageUri:String ,videoUri:String,
-                          navController: NavController) {
+fun VideoProcessingScreen(
+    viewmodel: MyViewModel = hiltViewModel(),
+    imageUri: String,
+    videoUri: String,
+    navController: NavController
+) {
+    val deepfakeResponseState = viewmodel.uploadDeepFakeVideoState.collectAsState()
     val context = LocalContext.current
     val data = remember { mutableStateOf<Bitmap?>(null) }
+
     LaunchedEffect(Unit) {
-        data.value = getVideoThumbnail(context,videoUri.toUri())
+        Log.d("UPLOAD", "Uploading video: $videoUri")
+        data.value = getVideoThumbnail(context, videoUri.toUri())
+        viewmodel.uploadVideoToDeepFakeServer(context = context, videoUri = videoUri)
     }
-      val imageUri = imageUri.toUri() //Frame
 
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center)
-    {
-        Text("Implemenation")
+    // Observe API Response
+    LaunchedEffect(deepfakeResponseState.value) {
+        deepfakeResponseState.value.data?.let { data ->
+            Log.d("APIRESPONSE2", "${data.score}") // ✅ Should now print response
+        }
+    }
+    Log.d("APIRESPONSE2", "${deepfakeResponseState.value.data?.prediction}")
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Implementation")
+
         data.value?.let { bitmap ->
-           Image(
-               bitmap = bitmap.asImageBitmap(),
-               contentDescription = "Video Thumbnail",
-               modifier = Modifier.size(200.dp) // Adjust the size as needed
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Video Thumbnail",
+                modifier = Modifier.size(200.dp)
             )
-       }
-
-
-
-
+        }
     }
-
-
 }

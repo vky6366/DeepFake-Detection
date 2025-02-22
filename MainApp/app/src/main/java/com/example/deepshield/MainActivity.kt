@@ -15,8 +15,10 @@ import androidx.compose.runtime.Composable
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.rememberAsyncImagePainter
 import com.example.deepshield.presentation.Navigation.MyApp
+import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
 import com.example.deepshield.presentation.Utils.LoadingIndicator
@@ -34,7 +36,8 @@ class MainActivity : ComponentActivity() {
             DeepShieldTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                     MyApp()
+                        MyApp()
+
 
                     }
 
