@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -34,8 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +58,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 import com.example.deepshield.presentation.Utils.AnimatedText
-import com.example.deepshield.presentation.Utils.LoadingIndicator
 import com.example.deepshield.presentation.viewModel.MyViewModel
 import com.shashank.sony.fancytoastlib.FancyToast
 
@@ -68,6 +70,7 @@ fun VideoProcessingScreen(
     videoUri: String,
     navController: NavController
 ) {
+    val navigationFlag = remember { mutableStateOf(false) }
     val deepfakeResponseState = viewmodel.uploadDeepFakeVideoState.collectAsState()
     val context = LocalContext.current
     val data = remember { mutableStateOf<Bitmap?>(null) }
@@ -78,7 +81,7 @@ fun VideoProcessingScreen(
         initialValue = 0.2f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            animation = tween(durationMillis = 1300, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
@@ -106,18 +109,18 @@ fun VideoProcessingScreen(
         Spacer(modifier = Modifier.height(32.dp))
         data.value?.let { bitmap ->
             Card(
-                shape = CircleShape,  // Makes it circular
+                shape = RectangleShape,  // Makes it circular
                 elevation = CardDefaults.elevatedCardElevation(8.dp),  // Adds shadow effect
                 modifier = Modifier
-                    .size(320.dp)  // Set size of the circular box
-                    .padding(16.dp)
+                    .size(350.dp)  // Set size of the circular box
+                    .padding(16.dp).background(Color.LightGray)
             ) {
                 Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = "Video Thumbnail",
                     modifier = Modifier
                         .size(300.dp)  // Image size inside the circle
-                        .clip(CircleShape)  // Clips image to circular shape
+                        .clip(RectangleShape)  // Clips image to circular shape
                         .graphicsLayer(
                             alpha = if (deepfakeResponseState.value.isLoading) animatedAlpha else 1f,
                             scaleX = 0.9f,
@@ -129,48 +132,84 @@ fun VideoProcessingScreen(
         }//end
         Spacer(modifier = Modifier.height(16.dp))
         if(deepfakeResponseState.value.isLoading) {
+            navigationFlag.value = false
             FancyToast.makeText(context,"processing",FancyToast.LENGTH_SHORT,FancyToast.CONFUSING,false).show()
-           // Text("Processing...", color = colorResource(id= R .color.themecolour))
-            AnimatedText()
+
+            Text(
+                text = "Processing...",
+                color = colorResource(id = R.color.themecolour),
+                fontSize = 35.sp,  // Keep font size constant
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
         else if (deepfakeResponseState.value.data != null) {
+            navigationFlag.value=true
             val score = deepfakeResponseState.value.data?.score ?: 0.0
             val formattedScore = String.format("%.3f", score)
             if( deepfakeResponseState.value.data?.prediction == "FAKE") {
-                Text("Prediction: ${deepfakeResponseState.value.data?.prediction}", color = Color.Red,
-                    fontSize = 35.sp,  // Keep font size constant
-                    fontWeight = FontWeight.Bold,)
-            }else{
-                Text("Prediction: ${deepfakeResponseState.value.data?.prediction}", color = Color.Green,
-                    fontSize = 35.sp,  // Keep font size constant
-                    fontWeight = FontWeight.Bold,)
-            }
-            if (deepfakeResponseState.value.data?.score!! < 0.5){
-                Text("Score: ${formattedScore}", color = Color.Green,
-                    fontSize = 35.sp,  // Keep font size constant
-                    fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()  // Automatically adjusts width & height
+                        .background(colorResource(R.color.themesuit1), shape = RoundedCornerShape(8.dp)) // Add rounded corners
+                        .padding(8.dp)  // Add padding for better spacing
+                ) {
+                    Text(
+                        text = "Looks like Computer generated OR Modified data ",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
 
-            }else if (deepfakeResponseState.value.data?.score!! == 0.5){
-                Text("Score: ${formattedScore}", color = Color.Red,
-                    fontSize = 35.sp,  // Keep font size constant
-                    fontWeight = FontWeight.Bold)
+                    )
+                }
+
+
             }else{
-                Text("Score: ${formattedScore}", color = Color.Red,
-                    fontSize = 35.sp,  // Keep font size constant
-                    fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()  // Automatically adjusts width & height
+                        .background(colorResource(R.color.themecolour), shape = RoundedCornerShape(8.dp)) // Add rounded corners
+                        .padding(8.dp)  // Add padding for better spacing
+                ) {
+                    Text(
+                        text = "This Video is not modified OR Altered",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                          // Ensure text is visible on background
+                    )
+                }
             }
+//            if (deepfakeResponseState.value.data?.score!! < 0.5){
+//                Text("Score: ${formattedScore}", color = Color.Green,
+//                    fontSize = 35.sp,  // Keep font size constant
+//                    fontWeight = FontWeight.Bold)
+//
+//            }else if (deepfakeResponseState.value.data?.score!! == 0.5){
+//                Text("Score: ${formattedScore}", color = Color.Red,
+//                    fontSize = 35.sp,  // Keep font size constant
+//                    fontWeight = FontWeight.Bold)
+//            }else{
+//                Text("Score: ${formattedScore}", color = Color.Red,
+//                    fontSize = 35.sp,  // Keep font size constant
+//                    fontWeight = FontWeight.Bold)
+//            }
 
         }
         else if(deepfakeResponseState.value.error.isNullOrEmpty()){
 //            FancyToast.makeText(context,"Error in processing",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
         }
+        Spacer(modifier = Modifier.height(16.dp))
         Box(
             contentAlignment = Alignment.Center,  // Centers the text inside the animation
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .height(50.dp)
                 .clickable {
-                  navController.navigate(VIDEOSELECTIONSCREEN)
+                    if(navigationFlag.value){
+                        navController.navigate(VIDEOSELECTIONSCREEN)
+                    }else{
+                        FancyToast.makeText(context,"Let background task finish",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
+                    }
+
                 }
         ) {
             // Lottie Animation
