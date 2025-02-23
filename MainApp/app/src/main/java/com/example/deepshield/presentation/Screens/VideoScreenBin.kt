@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,10 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -50,7 +54,12 @@ fun VideoScreenSelector(viewmodel: MyViewModel = hiltViewModel(), navController:
     val videouri= remember { mutableStateOf("") }
     val data = remember { mutableStateOf<Bitmap?>(null) }
     val navigationFlag = remember { mutableStateOf(false) }
-
+    val lottiecomposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.button))
+    val progress2 by animateLottieCompositionAsState(
+        composition = lottiecomposition,
+        iterations = LottieConstants.IterateForever,
+        speed = 0.75f
+    )
     val context = LocalContext.current
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.cloud)
@@ -112,25 +121,46 @@ fun VideoScreenSelector(viewmodel: MyViewModel = hiltViewModel(), navController:
         )
         Spacer(modifier = Modifier.height(16.dp))
         // Upload Button
-        Button(
-            onClick = {
-                medialauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
-
-            }, modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .height(50.dp), colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(id = R.color.themecolour) // Custom Hex Color
-            )
-        ) {
-            Text("Select Video", color = colorResource(id = R.color.black))
-        }
-//                data.value?.let { bitmap ->
-//            Image(
-//                bitmap = bitmap.asImageBitmap(),
-//                contentDescription = "Video Thumbnail",
-//                modifier = Modifier.size(200.dp) // Adjust the size as needed
+//        Button(
+//            onClick = {
+//                medialauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+//
+//            }, modifier = Modifier
+//                .fillMaxWidth(0.85f)
+//                .height(50.dp), colors = ButtonDefaults.buttonColors(
+//                containerColor = colorResource(id = R.color.themecolour) // Custom Hex Color
 //            )
+//        ) {
+//            Text("Select Video", color = colorResource(id = R.color.black))
 //        }
+        //end
+
+        Box(
+            contentAlignment = Alignment.Center,  // Centers the text inside the animation
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .height(50.dp)
+                .clickable {
+                    medialauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+                }
+        ) {
+            // Lottie Animation
+            LottieAnimation(
+                composition = lottiecomposition,
+                progress = { progress2 },
+                modifier = Modifier.fillMaxWidth()  // Makes animation fill the Box
+            )
+
+            // Overlayed Text
+            Text(
+                text = "Select Video",  // Your desired text
+                color = Color.White,  // Adjust color for visibility
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+
 
     }
 

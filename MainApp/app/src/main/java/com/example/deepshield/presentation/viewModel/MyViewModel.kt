@@ -22,10 +22,7 @@ class MyViewModel @Inject constructor(private val repositoryImpl: RepositoryImpl
     // ✅ State for fetching a frame
     private val _frameState = MutableStateFlow(FrameResponseState())
     val frameState = _frameState.asStateFlow()
-init {
-    getFrameFromServer()
-    Log.d("APIRESPONSE", "${frameState.value.bitmap}")
-}
+
     fun uploadVideoToDeepFakeServer(context: Context, videoUri: String){
         viewModelScope.launch {
             repositoryImpl.uploadVideoToDeepFakeServer(context = context, videoUri = videoUri).collectLatest {
