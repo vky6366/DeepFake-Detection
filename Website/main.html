@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepfake Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background-color:#1C93F1 ;
+            color:white;
+            padding: 1rem 0;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family:a;
+        }
+        .main {
+            padding: 3rem;
+            max-width: 600px;
+            margin: auto;
+            background-color:#f7f1f1;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-top:6rem; 
+        }
+        .upload,.detect {
+            margin-bottom: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            font-size: 1.2rem; 
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding-left: 120px;
+            margin-top: 10px;
+            background-color: #C9D1D5;
+        }
+        button {
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background-color: #1C93F1;
+        }
+        .results {
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        footer {
+            padding: 1rem 0;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .test_span {
+            font-size: 3.2rem; 
+            font-weight: bold;
+        }
+        footer a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>Deepfake Detection</header>
+    <div class="main">
+        <div class="upload">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Select A Video To Upload</label>
+                    <input type="file" id="file" name="file" accept="Video" required>
+                </div>
+                <button type="submit">Upload Video</button>
+            </form>
+        </div>
+        <div class="detect">
+            <h2>The Video Seem To Be</h2>
+            <div class="results" id="results">
+                <h3>Prediction Results</h3>
+                <p><span class="test_span" id="detected-genre">--</span></p>
+            </div>
+            
+        </div>
+    </div>
+    <script>
+            document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const formData = new FormData();
+                const fileInput = document.getElementById('file');
+                if (fileInput.files.length === 0) {
+                    alert('Please select a file before submitting.');
+                    return;
+                }
+
+                formData.append('file', fileInput.files[0]);
+
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        document.getElementById('results').style.display = 'block';
+                        document.getElementById('detected-genre').textContent = `${data.prediction}`;
+                    } else {
+                        alert(data.error || 'An error occurred while processing your request.');
+                    }
+                } catch (error) {
+                    alert('An error occurred. Please try again later.');
+                }
+            });
+    </script>
+</body>
+</html>
