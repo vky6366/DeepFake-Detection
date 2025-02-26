@@ -1,75 +1,135 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-900 text-white">
 
-<body>
-    <!-- webpage starts here -->
-    <!-- header starts -->
-    <div class="header">
-
-        <!-- logo starts  -->
-        <div class="logo">
-            <img src="logo.jpg" alt="logo">
-        </div>
-        <span class="title">DEEPFAKE DETECTION</span>
+    <!-- Header -->
+    <div class="text-center py-6 bg-gray-800">
+        <h1 class="text-3xl font-bold">Deepfake Video Detector</h1>
     </div>
 
-    <!-- main div starts -->
-    <div class="main">
+    <!-- Upload Section -->
+    <div class="flex flex-col items-center py-10">
+        <h2 class="text-xl font-semibold mb-4">Upload a Video</h2>
+        
+        <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-4 items-center">
+            <input type="file" id="videoInput" name="video" accept="video/*" required class="border p-2 rounded bg-gray-700">
+            <button type="submit" class="bg-blue-600 px-6 py-2 rounded hover:bg-blue-500 transition">
+                Upload Video
+            </button>
+        </form>
 
-        <!-- upload div starts -->
-        <div class="upload">
-            <h1>Upload Your File</h1>
+        <div id="loading" class="mt-4 hidden text-yellow-400">Processing video... Please wait.</div>
+    </div>
 
-            <!-- upload form starts -->
-            <form id="uploadForm" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="videoInput">Select A Video To Upload</label>
-                    <input type="file" id="videoInput" name="file" accept="video/*" required>
-                </div>
+    <!-- Results Section -->
+    <div id="results" class="hidden text-center mt-6">
+        <h2 class="text-xl font-semibold">Prediction Result</h2>
+        <p class="mt-2 text-lg">
+            <strong>Prediction:</strong> <span id="prediction">--</span>
+        </p>
+        <p class="mt-1">
+            <strong>Score:</strong> <span id="score">--</span>
+        </p>
+    </div>
 
-                <!-- button for submitting -->
-                <button type="submit">Upload Video</button>
-            </form>
-        </div>
-
-        <!-- detect div starts -->
-        <div class="detect">
-            <h2>The Video Seem To Be</h2>
-            <!-- loading container starts -->
-            <div class="container">
-                <div class="loading">
-                    <!-- loading box -->
-                    <div class="line-box">
-                        <div class="line">
-                            <h1>Loading....</h1>
-                        </div>
-                    </div>
-                </div>
+    <!-- Grad-CAM & Facial Analysis -->
+    <div class="mt-10 text-center">
+        <h2 class="text-xl font-semibold">Model Insights</h2>
+        
+        <div class="mt-4 flex flex-wrap justify-center gap-6">
+            <div>
+                <h3 class="font-semibold">3rd Frame</h3>
+                <img id="frameImg" class="hidden border border-gray-600 mt-2 w-64 h-auto" />
             </div>
-
-            <!-- results div starts -->
-            <div class="results" id="results" style="display:none;">
-                <h3>Prediction Results</h3>
-                <p><span class="test_span" id="detected-genre">--</span></p>
+            <div>
+                <h3 class="font-semibold">Grad-CAM Heatmap</h3>
+                <img id="gradcamImg" class="hidden border border-gray-600 mt-2 w-64 h-auto" />
             </div>
         </div>
     </div>
 
-    <!-- footer of the website -->
-    <footer class="footer">
-        <div class="footer-info">
-            &#169;DEEPFAKE DETECTION
-        </div>
-    </footer>
-    
-    <!-- webpage end here -->
+    <!-- JavaScript Logic -->
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('videoInput');
+
+            if (fileInput.files.length === 0) {
+                alert('Please select a video before uploading.');
+                return;
+            }
+
+            formData.append('video', fileInput.files[0]);
+
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('prediction').textContent = data.prediction;
+                    document.getElementById('score').textContent = data.score.toFixed(4);
+                    document.getElementById('results').classList.remove('hidden');
+                    fetch3rdFrame();
+                    fetchGradCAM();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Error processing the video.');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        });
+
+        async function fetch3rdFrame() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/get_3rd_frame');
+                const data = await response.json();
+                if (response.ok) {
+                    const imageData = new Uint8Array(data.image_bytes);
+                    const blob = new Blob([imageData], { type: "image/jpeg" });
+                    document.getElementById('frameImg').src = URL.createObjectURL(blob);
+                    document.getElementById('frameImg').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Failed to load 3rd frame:", error);
+            }
+        }
+
+        async function fetchGradCAM() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/gradcam');
+                const data = await response.json();
+                if (response.ok) {
+                    const imageData = new Uint8Array(data.heatmap_bytes);
+                    const blob = new Blob([imageData], { type: "image/jpeg" });
+                    document.getElementById('gradcamImg').src = URL.createObjectURL(blob);
+                    document.getElementById('gradcamImg').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Failed to load Grad-CAM heatmap:", error);
+            }
+        }
+    </script>
+
 </body>
-
 </html>
+
