@@ -8,6 +8,8 @@ import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
+import com.example.deepshield.data.Response.GradCamResponse
+import com.example.deepshield.data.Response.HeatMapResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
 import io.ktor.client.call.body
@@ -64,7 +66,7 @@ class RepositoryImpl:Repository {
         emit(ApiResult.Loading)
         try {
             // Perform Ktor GET request and parse response
-            val response: GetFrameResponse = KtorClient.client.get("http://192.168.31.80:5000/get_3rd_frame").body()
+            val response: GetFrameResponse = KtorClient.client.get("").body()
 
             // Convert image_bytes to Bitmap
             response.toBitmap()?.let { bitmap ->
@@ -76,6 +78,30 @@ class RepositoryImpl:Repository {
         }
     }
 
+    override suspend fun getHeatMapFromServer(): Flow<ApiResult<Bitmap>> = flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.HEATMAP}")
+            val apiResponse: HeatMapResponse = response.body()
+
+            // Convert the response to a Bitmap
+            val bitmap = apiResponse.toBitmap()
+            emit(ApiResult.Success(bitmap!!))
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message.toString()))
+        }
+    }
+
+    override suspend fun getGradCamFromServer(): Flow<ApiResult<GradCamResponse>> =flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.GRADCAM}")
+            val apiResponse: GradCamResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+        }catch (e:Exception){
+            emit(ApiResult.Error(e.message.toString()))
+        }
+    }
 
 
 }
