@@ -13,7 +13,7 @@ from PIL import Image
 import io
 from Utils.gradient import GradCAM
 from Utils.face_regions import FacialRegionAnalyzer
-
+from flask import Flask, request, jsonify, send_from_directory
 
 # ✅ Initialize Flask App
 app = Flask(__name__)
@@ -24,6 +24,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b3_model_epoch6.pth')
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -57,9 +58,10 @@ transform = get_inference_transforms()
 latest_3rd_frame = None
 facial_analysis_data = None
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
-    return "✅ Deepfake Detection API is Running!"
+    return send_from_directory(WEBSITE_FOLDER, "index.html")
+
 
 @app.route("/upload", methods=["POST"])
 def upload_and_process():
