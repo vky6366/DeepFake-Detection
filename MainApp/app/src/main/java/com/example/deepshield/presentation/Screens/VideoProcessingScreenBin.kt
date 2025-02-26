@@ -56,6 +56,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
+import com.example.deepshield.presentation.Navigation.HEATMAPSCREEN
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 import com.example.deepshield.presentation.Utils.AnimatedText
 import com.example.deepshield.presentation.viewModel.MyViewModel
@@ -144,6 +145,11 @@ fun VideoProcessingScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
         else if (deepfakeResponseState.value.data != null) {
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 5eac674 (Added heatmap)
             navigationFlag.value=true
             val score = deepfakeResponseState.value.data?.score ?: 0.0
             val formattedScore = String.format("%.3f", score)
@@ -159,6 +165,32 @@ fun VideoProcessingScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
 
+                    )
+                }
+                Box(
+                    contentAlignment = Alignment.Center,  // Centers the text inside the animation
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .height(50.dp)
+                        .clickable {
+                          //HeatMap
+                            navController.navigate(HEATMAPSCREEN)
+
+                        }
+                ) {
+                    // Lottie Animation
+                    LottieAnimation(
+                        composition = lottiecomposition,
+                        progress = { progress2 },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Overlayed Text
+                    Text(
+                        text = "HeatMap",  // Your desired text
+                        color = Color.White,  // Adjust color for visibility
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -178,6 +210,7 @@ fun VideoProcessingScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
 //            if (deepfakeResponseState.value.data?.score!! < 0.5){
 //                Text("Score: ${formattedScore}", color = Color.Green,
 //                    fontSize = 35.sp,  // Keep font size constant

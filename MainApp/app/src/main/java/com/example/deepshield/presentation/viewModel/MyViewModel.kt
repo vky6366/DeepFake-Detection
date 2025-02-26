@@ -60,4 +60,51 @@ class MyViewModel @Inject constructor(private val repositoryImpl: RepositoryImpl
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    fun getHeatMapFromServer(){
+        viewModelScope.launch {
+            repositoryImpl.getHeatMapFromServer().collect{response->
+               when(response){
+                   is ApiResult.Loading->{
+                       _getHeatMapFromServerState.value = HeatMapResponseState(isLoading = true)
+                   }
+                   is ApiResult.Error->{
+                       _getHeatMapFromServerState.value = HeatMapResponseState(isLoading = false, error = response.message)
+                   }
+                   is ApiResult.Success->{
+                       _getHeatMapFromServerState.value =HeatMapResponseState(isLoading = false , data = response.data)
+                   }
+               }
+
+            }
+
+        }
+    }
+
+    fun getGradCamResponse(){
+        viewModelScope.launch {
+            repositoryImpl.getGradCamResponse().collectLatest {result->
+                when(result){
+                    is ApiResult.Loading->{
+                        _getGradCAmResponseState.value = GradCamResponseState(isLoading = true)
+                    }
+                    is ApiResult.Success->{
+                        _getGradCAmResponseState.value = GradCamResponseState(isLoading = false, data = result.data)
+                    }
+                    is ApiResult.Error->{
+                        _getGradCAmResponseState.value =GradCamResponseState(isLoading = false, error = result.message)
+                    }
+                }
+
+            }
+        }
+
+    }
+
+
+
+
+>>>>>>> 5eac674 (Added heatmap)
 }
