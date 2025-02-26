@@ -2,6 +2,7 @@ package com.example.deepshield.domain.StateHandling
 
 import android.graphics.Bitmap
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
+import com.example.deepshield.data.Response.GradCamResponse
 
 sealed class ApiResult<out T> {
     object Loading : ApiResult<Nothing>()
@@ -17,5 +18,16 @@ data class DeepFakeVideoResponseState(
 data class FrameResponseState(
     val isLoading: Boolean = false,
     val bitmap: Bitmap? = null,
+    val error: String = ""
+)
+data class  HeatMapResponseState(
+    val isLoading: Boolean = false,
+    val data: Bitmap? = null,
+    val error: String = ""
+)
+
+data class GradCamResponseState(
+    val isLoading: Boolean = false,
+    val data:GradCamResponse? = null,
     val error: String = ""
 )

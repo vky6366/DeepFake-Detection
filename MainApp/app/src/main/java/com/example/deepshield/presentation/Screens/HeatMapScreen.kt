@@ -55,7 +55,7 @@ fun HeatCamScreen(viewModel: MyViewModel = hiltViewModel(),navController: NavCon
         viewModel.getGradCamResponse()
     }
     val getHeatMapState = viewModel.getHeatMapFromServerState.collectAsState()
-    val getGradCamResponse = viewModel.getGradCAmResponseState.collectAsState()
+    val getGradCamResponse = viewModel.getGradCamFromServerState.collectAsState()
     val lottiecomposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.button))
     val progress2 by animateLottieCompositionAsState(
         composition = lottiecomposition,
