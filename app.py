@@ -11,6 +11,9 @@ from Model.model import DeepfakeDetector  # Import trained model
 from Utils.preprocess import extract_frames, zoom_into_face  # Preprocessing functions
 from PIL import Image
 import io
+from Utils.gradient import GradCAM
+from Utils.face_regions import FacialRegionAnalyzer
+
 
 # ✅ Initialize Flask App
 app = Flask(__name__)
@@ -30,6 +33,7 @@ os.makedirs(FRAME_FOLDER, exist_ok=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = DeepfakeDetector().to(device)
 print(device)
+gradcam = GradCAM(model, model.base_model.features[-1])  # Last convolutional layer
 
 try:
     checkpoint = torch.load(MODEL_PATH, map_location=device, weights_only=False)
@@ -49,8 +53,9 @@ def get_inference_transforms():
 
 transform = get_inference_transforms()
 
-# ✅ Global Variable to Store 3rd Frame Path
+# ✅ Global Variables to Store Data
 latest_3rd_frame = None
+facial_analysis_data = None
 
 @app.route("/", methods=["GET"])
 def home():
@@ -78,7 +83,15 @@ def upload_and_process():
     # ✅ Step 2: Extract Frames from Video
     video_name = os.path.splitext(filename)[0]
     frame_output_folder = os.path.join(FRAME_FOLDER, video_name)
-    os.makedirs(frame_output_folder, exist_ok=True)
+    
+    # 🚀 New Step: Clear old images before storing new frames
+    if os.path.exists(frame_output_folder):
+        for file in os.listdir(frame_output_folder):
+            file_path = os.path.join(frame_output_folder, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+    else:
+        os.makedirs(frame_output_folder, exist_ok=True)
 
     extract_frames(filepath, frame_output_folder, frame_interval=3)
 
@@ -136,6 +149,7 @@ def upload_and_process():
         "score": avg_probability
     })
 
+
 @app.route("/get_3rd_frame", methods=["GET"])
 def get_3rd_frame():
     """Returns the 3rd frame as a raw byte array in JSON response."""
@@ -160,6 +174,81 @@ def get_3rd_frame():
 
     except Exception as e:
         return jsonify({"error": f"Failed to read frame: {str(e)}"}), 500
+
+@app.route("/gradcam", methods=["GET"])
+def get_gradcam():
+    """Returns Grad-CAM heatmap of the 3rd frame with facial region analysis."""
+
+    global latest_3rd_frame, facial_analysis_data
+    if not latest_3rd_frame or not os.path.exists(latest_3rd_frame):
+        return jsonify({"error": "3rd frame not found"}), 400
+
+    # Load Image
+    image = cv2.imread(latest_3rd_frame)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB for PIL
+    pil_image = Image.fromarray(image)
+
+    # Apply Model Transformations
+    input_tensor = transform(pil_image).unsqueeze(0).to(device)
+
+    # Compute Grad-CAM
+    heatmap = gradcam.generate_heatmap(input_tensor)
+    overlay = gradcam.apply_heatmap(np.array(pil_image), heatmap)
+
+    # Analyze facial regions
+    region_scores, focused_regions = gradcam.analyze_facial_regions(np.array(pil_image), heatmap)
+    facial_analysis_data = {
+        "focused_regions": focused_regions
+    }
+
+    # Save Heatmap Image
+    gradcam_path = os.path.join(FRAME_FOLDER, "gradcam_heatmap.jpg")
+    cv2.imwrite(gradcam_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+
+    try:
+        # ✅ Read Heatmap Image as Bytes
+        with open(gradcam_path, "rb") as img_file:
+            img_bytes = img_file.read()
+
+        # Delete the heatmap file after sending the response
+        os.remove(gradcam_path)
+
+        return jsonify({
+            "message": "✅ Grad-CAM heatmap generated!",
+            "heatmap_bytes": list(img_bytes)
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to read heatmap: {str(e)}"}), 500
+
+@app.route("/facial_analysis", methods=["GET"])
+def get_facial_analysis():
+    """Returns the facial region analysis from the latest Grad-CAM computation."""
+
+    global facial_analysis_data, latest_3rd_frame
+
+    if facial_analysis_data is None:
+        return jsonify({"error": "No facial analysis data available"}), 400
+
+    response = jsonify(facial_analysis_data)
+    facial_analysis_data = None  # Clear the stored data after sending the response
+
+    # Clean up uploaded video and processed frames
+    if latest_3rd_frame:
+        video_name = os.path.splitext(os.path.basename(latest_3rd_frame))[0]
+        frame_output_folder = os.path.join(FRAME_FOLDER, video_name)
+        try:
+            if os.path.exists(frame_output_folder):
+                for img_file in os.listdir(frame_output_folder):
+                    os.remove(os.path.join(frame_output_folder, img_file))
+                os.rmdir(frame_output_folder)
+        except FileNotFoundError:
+            print(f"Directory {frame_output_folder} not found for deletion.")
+    
+    for file in os.listdir(UPLOAD_FOLDER):
+        os.remove(os.path.join(UPLOAD_FOLDER, file))
+
+    return response
 
 # ✅ Run Flask App
 if __name__ == "__main__":

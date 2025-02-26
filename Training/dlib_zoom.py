@@ -71,13 +71,13 @@ def process_folder(input_folder, output_folder):
 
 # Example Usage
 if __name__ == "__main__":
-    real_input_folder = r"D:\videos\New_Dataset\Validation\Real_Frame"
-    real_output_folder = r"D:\videos\New_Dataset\Validation\Real"
+    # real_input_folder = r"D:\videos\New_Dataset\Validation\Real_Frame"
+    # real_output_folder = r"D:\videos\New_Dataset\Validation\Real"
     
-    fake_input_folder = r"D:\videos\New_Dataset\Validation\Fake_Frame"
-    fake_output_folder = r"D:\videos\New_Dataset\Validation\Fake"
-    print("--------------------Starting Real----------------------")
-    process_folder(real_input_folder, real_output_folder)
+    fake_input_folder = r"D:\videos\PPT\frame"
+    fake_output_folder = r"D:\videos\PPT\Face"
+    # print("--------------------Starting Real----------------------")
+    # process_folder(real_input_folder, real_output_folder)
     print("--------------------Starting Fake----------------------")
     process_folder(fake_input_folder, fake_output_folder)
     print("✅ Face zooming with dlib landmarks completed!")

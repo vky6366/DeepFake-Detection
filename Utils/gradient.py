@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
+from Utils.face_regions import FacialRegionAnalyzer
 
 class GradCAM:
     def __init__(self, model, target_layer):
@@ -11,6 +12,7 @@ class GradCAM:
         self.target_layer = target_layer
         self.gradients = None
         self.activations = None
+        self.facial_analyzer = FacialRegionAnalyzer()
 
         # Hook to capture gradients
         self.target_layer.register_forward_hook(self.forward_hook)
@@ -55,3 +57,23 @@ class GradCAM:
 
         overlay = cv2.addWeighted(original_img, 0.6, heatmap, 0.4, 0)  # Blend original + heatmap
         return overlay
+
+    def analyze_facial_regions(self, original_img, heatmap):
+        """Analyzes which facial regions the model is focusing on."""
+        # Get facial landmarks
+        landmarks = self.facial_analyzer.get_landmarks(original_img)
+        if landmarks is None:
+            return None, None
+
+        # Resize heatmap to match original image
+        heatmap_resized = cv2.resize(heatmap, (original_img.shape[1], original_img.shape[0]))
+        
+        # Get region scores
+        region_scores = self.facial_analyzer.analyze_heatmap_regions(
+            original_img, heatmap_resized, landmarks
+        )
+        
+        # Get focused regions
+        focused_regions = self.facial_analyzer.get_focused_regions(region_scores)
+        
+        return region_scores, focused_regions
