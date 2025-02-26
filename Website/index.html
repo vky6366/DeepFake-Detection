@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- webpage starts here -->
+    <!-- header starts -->
+    <div class="header">
+
+        <!-- logo starts  -->
+        <div class="logo">
+            <img src="logo.jpg" alt="logo">
+        </div>
+        <span class="title">DEEPFAKE DETECTION</span>
+    </div>
+
+    <!-- main div starts -->
+    <div class="main">
+
+        <!-- upload div starts -->
+        <div class="upload">
+            <h1>Upload Your File</h1>
+
+            <!-- upload form starts -->
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="videoInput">Select A Video To Upload</label>
+                    <input type="file" id="videoInput" name="file" accept="video/*" required>
+                </div>
+
+                <!-- button for submitting -->
+                <button type="submit">Upload Video</button>
+            </form>
+        </div>
+
+        <!-- detect div starts -->
+        <div class="detect">
+            <h2>The Video Seem To Be</h2>
+            <!-- loading container starts -->
+            <div class="container">
+                <div class="loading">
+                    <!-- loading box -->
+                    <div class="line-box">
+                        <div class="line">
+                            <h1>Loading....</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- results div starts -->
+            <div class="results" id="results" style="display:none;">
+                <h3>Prediction Results</h3>
+                <p><span class="test_span" id="detected-genre">--</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer of the website -->
+    <footer class="footer">
+        <div class="footer-info">
+            &#169;DEEPFAKE DETECTION
+        </div>
+    </footer>
+    
+    <!-- webpage end here -->
+</body>
+
+</html>
