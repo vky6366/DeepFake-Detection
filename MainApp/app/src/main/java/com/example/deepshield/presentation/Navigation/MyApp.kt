@@ -16,24 +16,6 @@ import com.example.deepshield.presentation.Screens.VideoScreenSelector
 import com.example.deepshield.presentation.Screens.VideoUploadingScreenBin
 import com.example.deepshield.presentation.viewModel.MyViewModel
 
-//@Composable
-//fun MyApp(viewModel: MyViewModel = hiltViewModel()) {
-//    val navController= rememberNavController()
-//    NavHost(navController = navController, startDestination =HOMESCREEN ) {
-//        composable<HOMESCREEN> {
-//            DeepFakeVideoScreen(navController = navController)
-//        }
-//        composable<DEEPFAKEVIDEOOUTPUTSCREEN> {backstack->
-//            val data:DEEPFAKEVIDEOOUTPUTSCREEN = backstack.toRoute()
-//            DeepFakeVideoOutput(message = data.message, prediction = data.prediction, score = data.score)
-//        }
-//        composable<VIDEOUPLOADSCREENROUTE> {backstack->
-//            val data:VIDEOUPLOADSCREENROUTE = backstack.toRoute()
-//            VideoUploadingScreenBin(videoUri = data.videoUri)
-//        }
-//
-//    }
-//}
 
 @Composable
 fun MyApp() {
