@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
+import com.example.deepshield.presentation.Screens.HeatCamScreen
 import com.example.deepshield.presentation.Screens.HomeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
@@ -49,6 +50,9 @@ fun MyApp() {
             val data:VIDEOPROCESSINGSCREEN =backstackdata.toRoute()
             VideoProcessingScreen(videoUri = data.videoUri, imageUri = data.imageUri, navController = navController)
 
+        }
+        composable<HEATMAPSCREEN> {
+            HeatCamScreen(navController = navController)
         }
 
 

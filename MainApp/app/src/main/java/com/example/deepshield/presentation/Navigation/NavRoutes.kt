@@ -21,3 +21,6 @@ object VIDEOSELECTIONSCREEN
 
 @Serializable
 data class VIDEOPROCESSINGSCREEN(val imageUri:String , val videoUri:String)
+
+@Serializable
+object HEATMAPSCREEN

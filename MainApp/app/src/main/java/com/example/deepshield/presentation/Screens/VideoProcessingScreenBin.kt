@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
+import com.example.deepshield.presentation.Navigation.HEATMAPSCREEN
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 import com.example.deepshield.presentation.Utils.AnimatedText
 import com.example.deepshield.presentation.viewModel.MyViewModel
@@ -109,10 +111,10 @@ fun VideoProcessingScreen(
         Spacer(modifier = Modifier.height(32.dp))
         data.value?.let { bitmap ->
             Card(
-                shape = RectangleShape,  // Makes it circular
+                shape = RectangleShape,
                 elevation = CardDefaults.elevatedCardElevation(8.dp),  // Adds shadow effect
                 modifier = Modifier
-                    .size(350.dp)  // Set size of the circular box
+                    .size(350.dp)
                     .padding(16.dp).background(Color.LightGray)
             ) {
                 Image(
@@ -144,10 +146,13 @@ fun VideoProcessingScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
         else if (deepfakeResponseState.value.data != null) {
+
+
             navigationFlag.value=true
             val score = deepfakeResponseState.value.data?.score ?: 0.0
             val formattedScore = String.format("%.3f", score)
             if( deepfakeResponseState.value.data?.prediction == "FAKE") {
+                FancyToast.makeText(context,"Video may be AI modified",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
                 Box(
                     modifier = Modifier
                         .wrapContentSize()  // Automatically adjusts width & height
@@ -161,9 +166,36 @@ fun VideoProcessingScreen(
 
                     )
                 }
+                Box(
+                    contentAlignment = Alignment.Center,  // Centers the text inside the animation
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .height(50.dp)
+                        .clickable {
+                          //HeatMap
+                            navController.navigate(HEATMAPSCREEN)
+
+                        }
+                ) {
+                    // Lottie Animation
+                    LottieAnimation(
+                        composition = lottiecomposition,
+                        progress = { progress2 },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Overlayed Text
+                    Text(
+                        text = "HeatMap",  // Your desired text
+                        color = Color.White,  // Adjust color for visibility
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
 
             }else{
+                FancyToast.makeText(context,"Video Seems to be REAL",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
                 Box(
                     modifier = Modifier
                         .wrapContentSize()  // Automatically adjusts width & height
@@ -178,6 +210,7 @@ fun VideoProcessingScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
 //            if (deepfakeResponseState.value.data?.score!! < 0.5){
 //                Text("Score: ${formattedScore}", color = Color.Green,
 //                    fontSize = 35.sp,  // Keep font size constant
@@ -192,42 +225,45 @@ fun VideoProcessingScreen(
 //                    fontSize = 35.sp,  // Keep font size constant
 //                    fontWeight = FontWeight.Bold)
 //            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                contentAlignment = Alignment.Center,  // Centers the text inside the animation
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(50.dp)
+                    .clickable {
+                        if(navigationFlag.value){
+                            navController.navigate(VIDEOSELECTIONSCREEN){
+                                popUpTo(0)
+                            }
+                        }else{
+                            FancyToast.makeText(context,"Let background task finish",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
+                        }
+
+                    }
+            ) {
+                // Lottie Animation
+                LottieAnimation(
+                    composition = lottiecomposition,
+                    progress = { progress2 },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Overlayed Text
+                Text(
+                    text = "New Video",  // Your desired text
+                    color = Color.White,  // Adjust color for visibility
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
         }
         else if(deepfakeResponseState.value.error.isNullOrEmpty()){
 //            FancyToast.makeText(context,"Error in processing",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(
-            contentAlignment = Alignment.Center,  // Centers the text inside the animation
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .height(50.dp)
-                .clickable {
-                    if(navigationFlag.value){
-                        navController.navigate(VIDEOSELECTIONSCREEN)
-                    }else{
-                        FancyToast.makeText(context,"Let background task finish",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
-                    }
 
-                }
-        ) {
-            // Lottie Animation
-            LottieAnimation(
-                composition = lottiecomposition,
-                progress = { progress2 },
-                modifier = Modifier.fillMaxWidth()  // Makes animation fill the Box
-            )
 
-            // Overlayed Text
-            Text(
-                text = "New Video",  // Your desired text
-                color = Color.White,  // Adjust color for visibility
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        //0.5 ke niche real , 0.5 = fake and up fake
     }
 
 }
