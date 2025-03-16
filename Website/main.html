@@ -3,138 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepfake Detection</title>
+    <title>Deepfake Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-        }
-        header {
-            background-color:#1C93F1 ;
-            color:white;
-            padding: 1rem 0;
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            font-family:a;
-        }
-        .main {
-            padding: 3rem;
-            max-width: 600px;
-            margin: auto;
-            background-color:#f7f1f1;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            margin-top:6rem; 
-        }
-        .upload,.detect {
-            margin-bottom: 20px;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            font-size: 1.2rem; 
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        input[type="file"] {
-            width: 100%;
-            padding: 0.5rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            padding-left: 120px;
-            margin-top: 10px;
-            background-color: #C9D1D5;
-        }
-        button {
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            background-color: #1C93F1;
-        }
-        .results {
-            padding: 1rem;
-            border-radius: 8px;
-            display: none;
-        }
-        footer {
-            padding: 1rem 0;
-            text-align: center;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        .test_span {
-            font-size: 3.2rem; 
-            font-weight: bold;
-        }
-        footer a {
-            text-decoration: none;
+        .gradient-bg {
+            background: linear-gradient(135deg, #008cff 0%, #ffffff 100%);
         }
     </style>
 </head>
-<body>
-    <header>Deepfake Detection</header>
-    <div class="main">
-        <div class="upload">
-            <form id="uploadForm" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="file">Select A Video To Upload</label>
-                    <input type="file" id="file" name="file" accept="Video" required>
-                </div>
-                <button type="submit">Upload Video</button>
-            </form>
-        </div>
-        <div class="detect">
-            <h2>The Video Seem To Be</h2>
-            <div class="results" id="results">
-                <h3>Prediction Results</h3>
-                <p><span class="test_span" id="detected-genre">--</span></p>
-            </div>
+<body class="gradient-bg min-h-screen">
+
+    <div class="text-center py-8 bg-blue-600 shadow-lg">
+        <h1 class="text-4xl font-bold text-white">Deepfake Video Detector</h1>
+    </div>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-2xl mx-auto bg-blue-600 rounded-xl p-8 shadow-xl">
+            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Upload a Video</h2>
             
+            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center">
+                <div class="w-full">
+                    <label for="videoInput" class="cursor-pointer flex flex-col items-center gap-4 p-6 border-2 border-dashed border-white rounded-lg hover:border-yellow-300 transition-all duration-300 bg-white/10">
+                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
+                        <span id="fileName" class="text-white">Drop your video here or click to browse</span>
+                    </label>
+                </div>
+                <button type="submit" class="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center gap-2">
+                    Analyze Video
+                </button>
+            </form>
+
+            <div id="loading" class="hidden mt-6 text-center">
+                <div class="flex items-center justify-center gap-3">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-300"></div>
+                    <span class="text-yellow-300 font-medium">Processing video... Please wait.</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="hidden max-w-2xl mx-auto mt-8 bg-blue-600 rounded-xl p-8 shadow-xl">
+            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Analysis Results</h2>
+            <div class="text-center p-4 bg-white/10 rounded-lg">
+                <p class="text-2xl text-white">
+                    <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto mt-8 bg-blue-600 rounded-xl p-8 shadow-xl">
+            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Visual Analysis</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-center text-white">Original Frame</h3>
+                    <div class="relative aspect-video bg-white/10 rounded-lg overflow-hidden">
+                        <img id="frameImg" class="w-full h-full object-contain hidden" alt="Original Frame">
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-center text-white">Heatmap Analysis</h3>
+                    <div class="relative aspect-video bg-white/10 rounded-lg overflow-hidden">
+                        <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
     <script>
-            document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-                event.preventDefault();
-                const formData = new FormData();
-                const fileInput = document.getElementById('file');
-                if (fileInput.files.length === 0) {
-                    alert('Please select a file before submitting.');
-                    return;
+        document.getElementById('videoInput').addEventListener('change', function() {
+            const file = this.files[0];
+            document.getElementById('fileName').textContent = file ? file.name : "Drop your video here or click to browse";
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('videoInput');
+            if (fileInput.files.length === 0) {
+                alert('Please select a video before uploading.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('video', fileInput.files[0]);
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('prediction').textContent = data.prediction;
+                    document.getElementById('results').classList.remove('hidden');
+                    fetch3rdFrame();
+                    fetchGradCAM();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Error processing the video.');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        });
+
+        async function fetch3rdFrame() {
+            try {
+                const response = await fetch('http://192.168.9.101:5000/get_3rd_frame');
+                const data = await response.json();
+                if (response.ok) {
+                    const imageData = new Uint8Array(data.image_bytes);
+                    const blob = new Blob([imageData], { type: "image/jpeg" });
+                    document.getElementById('frameImg').src = URL.createObjectURL(blob);
+                    document.getElementById('frameImg').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Failed to load 3rd frame:", error);
+            }
+        }
+
+        async function fetchGradCAM() {
+            try {
+                const response = await fetch("http://192.168.9.101:5000/gradcam");
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                formData.append('file', fileInput.files[0]);
+                const data = await response.json();
 
-                try {
-                    const response = await fetch('/predict', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-                    if (response.ok) {
-                        document.getElementById('results').style.display = 'block';
-                        document.getElementById('detected-genre').textContent = `${data.prediction}`;
-                    } else {
-                        alert(data.error || 'An error occurred while processing your request.');
-                    }
-                } catch (error) {
-                    alert('An error occurred. Please try again later.');
+                if (!data.heatmap_bytes || !Array.isArray(data.heatmap_bytes)) {
+                    throw new Error("Invalid response: heatmap_bytes is missing or not an array");
                 }
-            });
+
+                // Convert list to Uint8Array
+                const imageData = new Uint8Array(data.heatmap_bytes);
+                const blob = new Blob([imageData], { type: "image/jpeg" });
+
+                // Update image source
+                const imgElement = document.getElementById("gradcamImg");
+                imgElement.src = URL.createObjectURL(blob);
+                imgElement.classList.remove("hidden");
+
+            } catch (error) {
+                console.error("Failed to load Grad-CAM heatmap:", error);
+            }
+        }
     </script>
+
 </body>
 </html>

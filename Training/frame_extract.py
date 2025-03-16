@@ -3,13 +3,13 @@ import os
 from pathlib import Path
 
 # Set paths
-video_folder_fake = r"D:\videos\PPT"
-# video_folder_real = r"D:\videos\PPT\frame"
-output_folder_fake = r"D:\videos\PPT\frame"
-# output_folder_real = r"D:\videos\New_Dataset\Validation\Real_Frame"
+video_folder_fake = r"D:\videos\Sorted_Dataframe\test2\Real videos"
+# video_folder_real = r"D:\videos\New\Test\Real Video"
+output_folder_fake = r"D:\videos\Sorted_Dataframe\test2\Real Frames"
+# output_folder_real = r"D:\videos\New\Test\Real Frames"
 
 os.makedirs(output_folder_fake, exist_ok=True)
-# os.makedirs(output_folder_real, exist_ok=True)
+#os.makedirs(output_folder_real, exist_ok=True)
 
 def extract_frames(video_path, output_folder, frame_interval=3):  # Extract every 3rd frame (~10 FPS)
     cap = cv2.VideoCapture(video_path)
@@ -30,14 +30,14 @@ def extract_frames(video_path, output_folder, frame_interval=3):  # Extract ever
     cap.release()
     print(f"---Extracted {frame_count//frame_interval} frames from {video_name}---")
 
-print("✅ Starting Fake")
+print("✅ Starting Validation")
 
 # Process Fake videos
 for video in os.listdir(video_folder_fake):
     if video.endswith(('.mp4', '.avi', '.mov')):
         extract_frames(os.path.join(video_folder_fake, video), output_folder_fake)
 
-print("✅ Starting Real")
+print("✅ Starting Test")
 
 #Process Real videos
 # for video in os.listdir(video_folder_real):
