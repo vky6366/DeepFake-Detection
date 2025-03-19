@@ -12,17 +12,25 @@
         }
     </style>
 </head>
+<<<<<<< HEAD
 
 <body class="gradient-bg min-h-screen">
 
 
     <div class="text-center py-8 bg-blue-600 shadow-lg">
         <h1 class="text-4xl font-bold text-white">DEEPSHIELD</h1>
+=======
+<body class="gradient-bg min-h-screen">
+
+    <div class="text-center py-8 bg-blue-600 shadow-lg">
+        <h1 class="text-4xl font-bold text-white">Deepfake Video Detector</h1>
+>>>>>>> 08b4668 (Added File)
     </div>
 
     <div class="container mx-auto px-4 py-12">
         <div class="max-w-2xl mx-auto bg-blue-600 rounded-xl p-8 shadow-xl">
             <h2 class="text-2xl font-semibold mb-6 text-center text-white">Upload a Video</h2>
+<<<<<<< HEAD
 
             <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center">
                 <div class="w-full">
@@ -38,6 +46,21 @@
                 </button>
             </form>
 
+=======
+            
+            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center">
+                <div class="w-full">
+                    <label for="videoInput" class="cursor-pointer flex flex-col items-center gap-4 p-6 border-2 border-dashed border-white rounded-lg hover:border-yellow-300 transition-all duration-300 bg-white/10">
+                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
+                        <span id="fileName" class="text-white">Drop your video here or click to browse</span>
+                    </label>
+                </div>
+                <button type="submit" class="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center gap-2">
+                    Analyze Video
+                </button>
+            </form>
+
+>>>>>>> 08b4668 (Added File)
             <div id="loading" class="hidden mt-6 text-center">
                 <div class="flex items-center justify-center gap-3">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-300"></div>
@@ -52,6 +75,7 @@
                 <p class="text-2xl text-white">
                     <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
                 </p>
+<<<<<<< HEAD
             </div>
         </div>
 
@@ -72,11 +96,15 @@
                         <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
                     </div>
                 </div>
+=======
+>>>>>>> 08b4668 (Added File)
             </div>
+        </div>
         </div>
     </div>
 
     <script>
+<<<<<<< HEAD
         document.getElementById('videoInput').addEventListener('change', function () {
             const file = this.files[0];
             document.getElementById('fileName').textContent = file ? file.name : "Drop your video here or click to browse";
@@ -154,9 +182,49 @@
             } catch (error) {
                 console.error("Failed to load Grad-CAM heatmap:", error);
             }
+=======
+        document.getElementById('videoInput').addEventListener('change', function() {
+    const file = this.files[0];
+    document.getElementById('fileName').textContent = file ? file.name : "Drop your video here or click to browse";
+});
+
+document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const fileInput = document.getElementById('videoInput');
+    if (fileInput.files.length === 0) {
+        alert('Please select a video before uploading.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('video', fileInput.files[0]);
+    document.getElementById('loading').classList.remove('hidden');
+
+    try {
+        const response = await fetch('/upload', { method: 'POST', body: formData });
+        const data = await response.json();
+        if (response.ok) {
+            document.getElementById('prediction').textContent = data.prediction;
+            document.getElementById('results').classList.remove('hidden');
+            await fetch3rdFrame();
+            await fetchGradCAM();
+        } else {
+            alert(data.error);
+>>>>>>> 08b4668 (Added File)
         }
+    } catch (error) {
+        alert('Error processing the video.');
+        console.error(error);
+    } finally {
+        document.getElementById('loading').classList.add('hidden');
+    }
+});
     </script>
 
 </body>
+<<<<<<< HEAD
 
 </html>
+=======
+</html>
+>>>>>>> 08b4668 (Added File)
