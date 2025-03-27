@@ -12,6 +12,7 @@ class DeepfakeDetector(nn.Module):
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.5),
             nn.Linear(num_features, 512),
+            nn.BatchNorm1d(512),
             nn.SiLU(),
             nn.Dropout(p=0.3),
             nn.Linear(512, 1)
