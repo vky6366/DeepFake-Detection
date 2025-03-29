@@ -62,7 +62,6 @@
 
 
     <div class="text-center py-8 bg-blue-600 shadow-lg">
-        <h1 class="text-4xl font-bold text-white">DEEPSHIELD</h1>
 <body class="custom-gradient min-h-screen text-gray-100 pb-20">
     <!-- Header with new design -->
     <div class="text-center py-16 glass-effect border-b border-indigo-500/10">
@@ -75,7 +74,6 @@
 
     <div class="container mx-auto px-4 py-12">
         <div class="max-w-2xl mx-auto bg-blue-600 rounded-xl p-8 shadow-xl">
-            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Upload a Video</h2>
     <div class="container mx-auto px-4 py-12 max-w-6xl">
         <!-- Upload section with improved layout -->
         <div class="max-w-2xl mx-auto glass-effect rounded-3xl p-10 shadow-2xl mb-12">
@@ -148,116 +146,111 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('videoInput').addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                if (!file.type.startsWith('video/')) {
-                    alert('Please upload a valid video file.');
-                    this.value = '';
-                    return;
-                }
-                document.getElementById('fileName').textContent = file.name;
-            } else {
-                document.getElementById('fileName').textContent = "Drop your video here or click to browse";
-            }
-            state.resetUI();
-        });
-
-        // Form submission handler
-        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            if (state.isProcessing) return;
-
-            const fileInput = document.getElementById('videoInput');
-            if (fileInput.files.length === 0) {
-                alert('Please select a video before uploading.');
+    <!-- Replace the existing script section with this updated version -->
+<script>
+    document.getElementById('videoInput').addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            if (!file.type.startsWith('video/')) {
+                alert('Please upload a valid video file.');
+                this.value = '';
                 return;
             }
+            document.getElementById('fileName').textContent = file.name;
+        } else {
+            document.getElementById('fileName').textContent = "Drop your video here or click to browse";
+        }
+    });
 
-            try {
-                state.isProcessing = true;
-                state.resetUI();
-                
-                // Show loading state
-                document.getElementById('loading').classList.remove('hidden');
-                
-                // Prepare and send form data
-                const formData = new FormData();
-                formData.append('video', fileInput.files[0]);
+    // Form submission handler
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-                // Main API call
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                // Update prediction result
-                document.getElementById('prediction').textContent = data.prediction;
-                document.getElementById('results').classList.remove('result-hidden');
-
-                // Fetch additional analysis data
-                await Promise.all([
-                    fetch3rdFrame(),
-                    fetchGradCAM()
-                ]);
-
-                // Show visual analysis section
-                document.getElementById('visualAnalysis').classList.remove('result-hidden');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error processing the video. Please try again.');
-            } finally {
-                state.isProcessing = false;
-                document.getElementById('loading').classList.add('hidden');
-            }
-        });
-
-        // Modified fetch functions with better error handling
-        async function fetch3rdFrame() {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/get_3rd_frame');
-                if (!response.ok) throw new Error('Failed to fetch frame');
-                
-                const data = await response.json();
-                const imageData = new Uint8Array(data.image_bytes);
-                const blob = new Blob([imageData], { type: "image/jpeg" });
-                
-                const frameImg = document.getElementById('frameImg');
-                frameImg.src = URL.createObjectURL(blob);
-                frameImg.classList.remove('hidden');
-            } catch (error) {
-                console.error("Failed to load frame:", error);
-                throw error;
-            }
+        const fileInput = document.getElementById('videoInput');
+        if (fileInput.files.length === 0) {
+            alert('Please select a video before uploading.');
+            return;
         }
 
-        async function fetchGradCAM() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/gradcam");
-                if (!response.ok) throw new Error('Failed to fetch heatmap');
-                
-                const data = await response.json();
-                if (!data.heatmap_bytes?.length) throw new Error("Invalid heatmap data");
-                
-                const imageData = new Uint8Array(data.heatmap_bytes);
-                const blob = new Blob([imageData], { type: "image/jpeg" });
-                
-                const gradcamImg = document.getElementById("gradcamImg");
-                gradcamImg.src = URL.createObjectURL(blob);
-                gradcamImg.classList.remove("hidden");
-            } catch (error) {
-                console.error("Failed to load heatmap:", error);
-                throw error;
+        try {
+            // Show loading state
+            document.getElementById('loading').classList.remove('hidden');
+            
+            // Prepare and send form data
+            const formData = new FormData();
+            formData.append('video', fileInput.files[0]);
+
+            // Main API call - Update the URL to match Flask server
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
+            const data = await response.json();
+            
+            // Update prediction result
+            document.getElementById('prediction').textContent = `${data.prediction} (Score: ${(data.score * 100).toFixed(2)}%)`;
+            document.getElementById('results').classList.remove('result-hidden');
+
+            // Fetch additional analysis data
+            await Promise.all([
+                fetch3rdFrame(),
+                fetchGradCAM()
+            ]);
+
+            // Show visual analysis section
+            document.getElementById('visualAnalysis').classList.remove('result-hidden');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error processing the video. Please try again.');
+        } finally {
+            document.getElementById('loading').classList.add('hidden');
         }
-    </script>
+    });
+
+    // Modified fetch functions with proper error handling
+    async function fetch3rdFrame() {
+        try {
+            const response = await fetch('/get_3rd_frame');
+            if (!response.ok) throw new Error('Failed to fetch frame');
+            
+            const data = await response.json();
+            const imageData = new Uint8Array(data.image_bytes);
+            const blob = new Blob([imageData], { type: "image/jpeg" });
+            
+            const frameImg = document.getElementById('frameImg');
+            frameImg.src = URL.createObjectURL(blob);
+            frameImg.classList.remove('hidden');
+        } catch (error) {
+            console.error("Failed to load frame:", error);
+            throw error;
+        }
+    }
+
+    async function fetchGradCAM() {
+        try {
+            const response = await fetch("/gradcam");
+            if (!response.ok) throw new Error('Failed to fetch heatmap');
+            
+            const data = await response.json();
+            if (!data.heatmap_bytes?.length) throw new Error("Invalid heatmap data");
+            
+            const imageData = new Uint8Array(data.heatmap_bytes);
+            const blob = new Blob([imageData], { type: "image/jpeg" });
+            
+            const gradcamImg = document.getElementById("gradcamImg");
+            gradcamImg.src = URL.createObjectURL(blob);
+            gradcamImg.classList.remove("hidden");
+        } catch (error) {
+            console.error("Failed to load heatmap:", error);
+            throw error;
+        }
+    }
+</script>
 
 </body>
 
