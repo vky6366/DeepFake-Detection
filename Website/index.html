@@ -6,6 +6,7 @@
     <title>Deepfake Detector</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+<<<<<<< HEAD
         .gradient-bg {
             background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
         }
@@ -36,6 +37,98 @@
                     <span id="fileName" class="text-gray-700 font-medium">Drop your video here or click to browse</span>
                 </label>
                 <button type="submit" class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+=======
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --accent: #f43f5e;
+        }
+        
+        .custom-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .result-transition {
+            transition: all 0.5s ease-in-out;
+            transform-origin: top;
+        }
+
+        .result-hidden {
+            transform: scaleY(0);
+            height: 0;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.875rem !important;
+            }
+            h2 {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.5rem;
+            }
+            .upload-container {
+                padding: 1rem !important;
+            }
+        }
+    </style>
+</head>
+
+
+<body class="gradient-bg min-h-screen">
+
+
+    <div class="text-center py-8 bg-blue-600 shadow-lg">
+<body class="custom-gradient min-h-screen text-gray-100 pb-20">
+    <!-- Header with new design -->
+    <div class="text-center py-16 glass-effect border-b border-indigo-500/10">
+        <h1 class="text-6xl font-bold tracking-tight">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-pink-500">DEEP</span>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-indigo-500">SHIELD</span>
+        </h1>
+        <p class="text-indigo-200/60 mt-4 text-xl font-light">Advanced Deepfake Detection System</p>
+    </div>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-2xl mx-auto bg-blue-600 rounded-xl p-8 shadow-xl">
+    <div class="container mx-auto px-4 py-12 max-w-6xl">
+        <!-- Upload section with improved layout -->
+        <div class="max-w-2xl mx-auto glass-effect rounded-3xl p-10 shadow-2xl mb-12">
+            <h2 class="text-3xl font-semibold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400">
+                Upload a Video
+            </h2>
+
+            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-8 items-center">
+                <div class="w-full">
+                    <label for="videoInput"
+                        class="cursor-pointer flex flex-col items-center gap-6 p-10 border-2 border-dashed border-indigo-500/30 rounded-2xl hover:border-pink-500/50 transition-all duration-300 bg-indigo-950/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
+                        <span id="fileName" class="text-indigo-200/60 text-lg text-center">Drop your video here or click to browse</span>
+                    </label>
+                </div>
+                <button type="submit"
+                    class="bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-medium px-12 py-4 rounded-xl hover:from-indigo-500 hover:to-pink-500 transition-all duration-300 flex items-center gap-3 transform hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+>>>>>>> a8efd74f9e9a2504212127cb636e0b78438a9985
                     Analyze Video
                 </button>
             </form>
@@ -47,16 +140,29 @@
             </div>
         </section>
 
+<<<<<<< HEAD
         <!-- Results Section -->
         <section id="results" class="hidden card p-8">
             <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
             <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
                 <p class="text-2xl text-[#0D47A1]">
                     <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
+=======
+        <!-- Results section with transition -->
+        <div id="results" class="result-transition result-hidden max-w-2xl mx-auto glass-effect rounded-3xl p-10 shadow-2xl mb-12">
+            <h2 class="text-3xl font-semibold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400">
+                Analysis Results
+            </h2>
+            <div class="text-center p-8 bg-indigo-950/30 rounded-2xl border border-indigo-500/10">
+                <p class="text-4xl">
+                    <strong class="text-indigo-200">Prediction:</strong> 
+                    <span id="prediction" class="ml-3 font-light bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400">--</span>
+>>>>>>> a8efd74f9e9a2504212127cb636e0b78438a9985
                 </p>
             </div>
         </section>
 
+<<<<<<< HEAD
         <!-- Visual Analysis -->
         <section class="card p-8">
             <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Visual Analysis</h2>
@@ -70,15 +176,43 @@
                 <div class="space-y-4 text-center">
                     <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
                     <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
+=======
+        <!-- Visual Analysis section with improved layout -->
+        <div id="visualAnalysis" class="result-transition result-hidden max-w-5xl mx-auto glass-effect rounded-3xl p-10 shadow-2xl">
+            <h2 class="text-3xl font-semibold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400">
+                Visual Analysis
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <h3 class="text-xl font-medium text-center text-indigo-200">Original Frame</h3>
+                    <div class="relative aspect-video bg-indigo-950/30 rounded-2xl overflow-hidden shadow-lg border border-indigo-500/10">
+                        <img id="frameImg" class="w-full h-full object-contain hidden" alt="Original Frame">
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-xl font-medium text-center text-indigo-200">Heatmap Analysis</h3>
+                    <div class="relative aspect-video bg-indigo-950/30 rounded-2xl overflow-hidden shadow-lg border border-indigo-500/10">
+>>>>>>> a8efd74f9e9a2504212127cb636e0b78438a9985
                         <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
         </section>
     </main>
     
     <script>
         document.getElementById('videoInput').addEventListener('change', function () {
+=======
+        </div>
+    </div>
+
+    <!-- Replace the existing script section with this updated version -->
+<script>
+    document.getElementById('videoInput').addEventListener('change', function () {
+>>>>>>> a8efd74f9e9a2504212127cb636e0b78438a9985
         const file = this.files[0];
         if (file) {
             if (!file.type.startsWith('video/')) {
@@ -180,6 +314,13 @@
             throw error;
         }
     }
+<<<<<<< HEAD
     </script>
 </body>
+=======
+</script>
+
+</body>
+
+>>>>>>> a8efd74f9e9a2504212127cb636e0b78438a9985
 </html>
