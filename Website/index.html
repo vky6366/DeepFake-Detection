@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,155 +7,179 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .gradient-bg {
-            background: linear-gradient(135deg, #008cff 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .upload-box {
+            border: 2px dashed #0D47A1;
         }
     </style>
 </head>
-
-<body class="gradient-bg min-h-screen">
-
-
-    <div class="text-center py-8 bg-blue-600 shadow-lg">
-        <h1 class="text-4xl font-bold text-white">DEEPSHIELD</h1>
-    </div>
-
-    <div class="container mx-auto px-4 py-12">
-        <div class="max-w-2xl mx-auto bg-blue-600 rounded-xl p-8 shadow-xl">
-            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Upload a Video</h2>
-
-            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center">
-                <div class="w-full">
-                    <label for="videoInput"
-                        class="cursor-pointer flex flex-col items-center gap-4 p-6 border-2 border-dashed border-white rounded-lg hover:border-yellow-300 transition-all duration-300 bg-white/10">
-                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
-                        <span id="fileName" class="text-white">Drop your video here or click to browse</span>
-                    </label>
-                </div>
-                <button type="submit"
-                    class="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center gap-2">
+<body class="gradient-bg min-h-screen flex flex-col items-center">
+    
+    <header class="w-full py-6 bg-[#0D47A1] shadow-lg text-center text-white text-4xl font-bold tracking-wider">
+        DEEPSHIELD
+    </header>
+    
+    <main class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl">
+        <!-- Upload Section -->
+        <section class="card p-8">
+            <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Video</h2>
+            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
+                <label for="videoInput" class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
+                    <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
+                    <span id="fileName" class="text-gray-700 font-medium">Drop your video here or click to browse</span>
+                </label>
+                <button type="submit" class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
                     Analyze Video
                 </button>
             </form>
-
             <div id="loading" class="hidden mt-6 text-center">
                 <div class="flex items-center justify-center gap-3">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-300"></div>
-                    <span class="text-yellow-300 font-medium">Processing video... Please wait.</span>
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                    <span class="text-[#0D47A1] font-medium">Processing video... Please wait.</span>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="results" class="hidden max-w-2xl mx-auto mt-8 bg-blue-600 rounded-xl p-8 shadow-xl">
-            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Analysis Results</h2>
-            <div class="text-center p-4 bg-white/10 rounded-lg">
-                <p class="text-2xl text-white">
+        <!-- Results Section -->
+        <section id="results" class="hidden card p-8">
+            <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+            <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                <p class="text-2xl text-[#0D47A1]">
                     <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
                 </p>
             </div>
-        </div>
+        </section>
 
-        <div class="max-w-4xl mx-auto mt-8 bg-blue-600 rounded-xl p-8 shadow-xl">
-            <h2 class="text-2xl font-semibold mb-6 text-center text-white">Visual Analysis</h2>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-center text-white">Original Frame</h3>
-                    <div class="relative aspect-video bg-white/10 rounded-lg overflow-hidden">
+        <!-- Visual Analysis -->
+        <section class="card p-8">
+            <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Visual Analysis</h2>
+            <div class="grid md:grid-cols-2 gap-8 mt-6">
+                <div class="space-y-4 text-center">
+                    <h3 class="font-semibold text-[#0D47A1]">Original Frame</h3>
+                    <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
                         <img id="frameImg" class="w-full h-full object-contain hidden" alt="Original Frame">
                     </div>
                 </div>
-
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-center text-white">Heatmap Analysis</h3>
-                    <div class="relative aspect-video bg-white/10 rounded-lg overflow-hidden">
+                <div class="space-y-4 text-center">
+                    <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
+                    <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
                         <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
+        </section>
+    </main>
+    
     <script>
         document.getElementById('videoInput').addEventListener('change', function () {
-            const file = this.files[0];
-            document.getElementById('fileName').textContent = file ? file.name : "Drop your video here or click to browse";
-        });
-
-        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const fileInput = document.getElementById('videoInput');
-            if (fileInput.files.length === 0) {
-                alert('Please select a video before uploading.');
+        const file = this.files[0];
+        if (file) {
+            if (!file.type.startsWith('video/')) {
+                alert('Please upload a valid video file.');
+                this.value = '';
                 return;
             }
+            document.getElementById('fileName').textContent = file.name;
+        } else {
+            document.getElementById('fileName').textContent = "Drop your video here or click to browse";
+        }
+    });
 
+    // Form submission handler
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('videoInput');
+        if (fileInput.files.length === 0) {
+            alert('Please select a video before uploading.');
+            return;
+        }
+
+        try {
+            // Show loading state
+            document.getElementById('loading').classList.remove('hidden');
+            
+            // Prepare and send form data
             const formData = new FormData();
             formData.append('video', fileInput.files[0]);
-            document.getElementById('loading').classList.remove('hidden');
 
-            try {
-                const response = await fetch('/upload', { method: 'POST', body: formData });
-                const data = await response.json();
-                if (response.ok) {
-                    document.getElementById('prediction').textContent = data.prediction;
-                    document.getElementById('results').classList.remove('hidden');
-                    fetch3rdFrame();
-                    fetchGradCAM();
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                alert('Error processing the video.');
-                console.error(error);
-            } finally {
-                document.getElementById('loading').classList.add('hidden');
-            }
-        });
+            // Main API call - Update the URL to match Flask server
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
 
-        async function fetch3rdFrame() {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/get_3rd_frame');
-                const data = await response.json();
-                if (response.ok) {
-                    const imageData = new Uint8Array(data.image_bytes);
-                    const blob = new Blob([imageData], { type: "image/jpeg" });
-                    document.getElementById('frameImg').src = URL.createObjectURL(blob);
-                    document.getElementById('frameImg').classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error("Failed to load 3rd frame:", error);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
+            const data = await response.json();
+            
+            // Update prediction result
+            document.getElementById('prediction').textContent = `${data.prediction} (Score: ${(data.score * 100).toFixed(2)}%)`;
+            document.getElementById('results').classList.remove('result-hidden');
+
+            // Fetch additional analysis data
+            await Promise.all([
+                fetch3rdFrame(),
+                fetchGradCAM()
+            ]);
+
+            // Show visual analysis section
+            document.getElementById('visualAnalysis').classList.remove('result-hidden');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error processing the video. Please try again.');
+        } finally {
+            document.getElementById('loading').classList.add('hidden');
         }
+    });
 
-        async function fetchGradCAM() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/gradcam");
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (!data.heatmap_bytes || !Array.isArray(data.heatmap_bytes)) {
-                    throw new Error("Invalid response: heatmap_bytes is missing or not an array");
-                }
-
-                // Convert list to Uint8Array
-                const imageData = new Uint8Array(data.heatmap_bytes);
-                const blob = new Blob([imageData], { type: "image/jpeg" });
-
-                // Update image source
-                const imgElement = document.getElementById("gradcamImg");
-                imgElement.src = URL.createObjectURL(blob);
-                imgElement.classList.remove("hidden");
-
-            } catch (error) {
-                console.error("Failed to load Grad-CAM heatmap:", error);
-            }
+    // Modified fetch functions with proper error handling
+    async function fetch3rdFrame() {
+        try {
+            const response = await fetch('/get_3rd_frame');
+            if (!response.ok) throw new Error('Failed to fetch frame');
+            
+            const data = await response.json();
+            const imageData = new Uint8Array(data.image_bytes);
+            const blob = new Blob([imageData], { type: "image/jpeg" });
+            
+            const frameImg = document.getElementById('frameImg');
+            frameImg.src = URL.createObjectURL(blob);
+            frameImg.classList.remove('hidden');
+        } catch (error) {
+            console.error("Failed to load frame:", error);
+            throw error;
         }
+    }
+
+    async function fetchGradCAM() {
+        try {
+            const response = await fetch("/gradcam");
+            if (!response.ok) throw new Error('Failed to fetch heatmap');
+            
+            const data = await response.json();
+            if (!data.heatmap_bytes?.length) throw new Error("Invalid heatmap data");
+            
+            const imageData = new Uint8Array(data.heatmap_bytes);
+            const blob = new Blob([imageData], { type: "image/jpeg" });
+            
+            const gradcamImg = document.getElementById("gradcamImg");
+            gradcamImg.src = URL.createObjectURL(blob);
+            gradcamImg.classList.remove("hidden");
+        } catch (error) {
+            console.error("Failed to load heatmap:", error);
+            throw error;
+        }
+    }
     </script>
-
 </body>
-
 </html>

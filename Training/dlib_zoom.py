@@ -74,8 +74,8 @@ if __name__ == "__main__":
     # real_input_folder = r"D:\videos\New_Dataset\Validation\Real_Frame"
     # real_output_folder = r"D:\videos\New_Dataset\Validation\Real"
     
-    fake_input_folder = r"D:\videos\PPT\frame"
-    fake_output_folder = r"D:\videos\PPT\Face"
+    fake_input_folder = r"D:\videos\Sorted_Dataframe\test2\Real Frames"
+    fake_output_folder = r"D:\videos\Sorted_Dataframe\test2\Real"
     # print("--------------------Starting Real----------------------")
     # process_folder(real_input_folder, real_output_folder)
     print("--------------------Starting Fake----------------------")

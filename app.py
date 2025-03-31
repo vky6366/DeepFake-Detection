@@ -21,7 +21,7 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Define paths relative to the base directory
-MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b3_model_epoch6.pth')
+MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b4_model_epoch6.pth')
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
