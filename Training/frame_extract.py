@@ -3,9 +3,9 @@ import os
 from pathlib import Path
 
 # Set paths
-video_folder_fake = r"D:\videos\Sorted_Dataframe\test2\Real videos"
+video_folder_fake = r"D:\videos\video"
 # video_folder_real = r"D:\videos\New\Test\Real Video"
-output_folder_fake = r"D:\videos\Sorted_Dataframe\test2\Real Frames"
+output_folder_fake = r"D:\videos\Frame"
 # output_folder_real = r"D:\videos\New\Test\Real Frames"
 
 os.makedirs(output_folder_fake, exist_ok=True)

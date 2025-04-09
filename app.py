@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
-from Model.model import DeepfakeDetector  # Import trained model
+from Model.model import DeepfakeDetector, DeepfakeDetectorb5
 from Utils.preprocess import extract_frames, zoom_into_face  # Preprocessing functions
 from PIL import Image
 import io
@@ -21,7 +21,6 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Define paths relative to the base directory
-MODEL_PATH = os.path.join(BASE_DIR, 'Model', 'best_b4_model_epoch6.pth')
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
@@ -32,17 +31,26 @@ os.makedirs(FRAME_FOLDER, exist_ok=True)
 
 # ✅ Load Deepfake Detection Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = DeepfakeDetector().to(device)
-print(device)
-gradcam = GradCAM(model, model.base_model.features[-1])  # Last convolutional layer
 
+model_xception = DeepfakeDetector().to(device)
+model_b5 = DeepfakeDetectorb5().to(device)
+
+gradcam = GradCAM(model_xception, model_xception.base_model.conv4)  # ✅ Use correct final conv layer
+#gradcam = GradCAM(model_b5, model_b5.base_model.features[-1])  # EfficientNet-B5 last conv block
 try:
-    checkpoint = torch.load(MODEL_PATH, map_location=device, weights_only=False)
-    model.load_state_dict(checkpoint["model_state_dict"])
-    model.eval()
-    print("✅ Model successfully loaded!")
+    # Load Xception weights
+    xception_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_Xception_model_epoch4 .pth'), map_location=device,weights_only=False)
+    model_xception.load_state_dict(xception_ckpt["model_state_dict"])
+    model_xception.eval()
+
+    # Load B5 weights
+    b5_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_b5_model_epoch4.pth'), map_location=device,weights_only=False)
+    model_b5.load_state_dict(b5_ckpt["model_state_dict"])
+    model_b5.eval()
+
+    print("✅ Both models loaded successfully!")
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"❌ Error loading models: {e}")
 
 # ✅ Define Image Preprocessing for Inference
 def get_inference_transforms():
@@ -113,7 +121,7 @@ def upload_and_process():
     if not processed_images:
         return jsonify({"error": "No faces detected in the video"}), 400
 
-    # ✅ Step 5: Predict Deepfake Probability
+    # ✅ Step 5: Predict Deepfake Probability using Ensemble
     predictions = []
     with torch.no_grad():
         for img_file in tqdm(os.listdir(frame_output_folder), desc="🔍 Predicting Deepfakes"):
@@ -122,19 +130,20 @@ def upload_and_process():
             if image is None:
                 continue
 
-            # Convert to RGB & PIL Image
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(image)
+            image_tensor = transform(image).unsqueeze(0).to(device)
 
-            # Apply Preprocessing
-            image = transform(image).unsqueeze(0).to(device)
-            print("🧐 Inference Image Mean:", image.mean().item())
-            print("🧐 Inference Image Std:", image.std().item())
+            # Inference from both models
+            out_x = model_xception(image_tensor).squeeze().item()
+            out_b5 = model_b5(image_tensor).squeeze().item()
 
-            # Model Inference
-            output = model(image).squeeze().item()
-            probability = float(torch.sigmoid(torch.tensor(output)).item())  # Apply Sigmoid Activation
-            predictions.append(probability)
+            # Apply sigmoid and average the probabilities
+            prob_x = torch.sigmoid(torch.tensor(out_x)).item()
+            prob_b5 = torch.sigmoid(torch.tensor(out_b5)).item()
+            final_prob = (prob_x + prob_b5) / 2
+
+            predictions.append(final_prob)
 
     # ✅ Step 6: Final Decision
     if not predictions:
