@@ -8,42 +8,36 @@ from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
 from Model.model import DeepfakeDetector, DeepfakeDetectorb5
-from Utils.preprocess import extract_frames, zoom_into_face  # Preprocessing functions
+from Utils.preprocess import extract_frames, zoom_into_face  
 from PIL import Image
 import io
 from Utils.gradient import GradCAM
 from Utils.face_regions import FacialRegionAnalyzer
 from flask import Flask, request, jsonify, send_from_directory
 
-# ✅ Initialize Flask App
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Define paths relative to the base directory
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 
-# Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
 
-# ✅ Load Deepfake Detection Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_xception = DeepfakeDetector().to(device)
+model_b4 = DeepfakeDetector().to(device)
 model_b5 = DeepfakeDetectorb5().to(device)
 
-gradcam = GradCAM(model_xception, model_xception.base_model.conv4)  # ✅ Use correct final conv layer
-#gradcam = GradCAM(model_b5, model_b5.base_model.features[-1])  # EfficientNet-B5 last conv block
+gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])  
+#gradcam = GradCAM(model_b5, model_b5.base_model.features[-1])  
 try:
-    # Load Xception weights
-    xception_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_Xception_model_epoch4 .pth'), map_location=device,weights_only=False)
-    model_xception.load_state_dict(xception_ckpt["model_state_dict"])
-    model_xception.eval()
+    b4_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_Xception_model_epoch4 .pth'), map_location=device,weights_only=False)
+    model_b4.load_state_dict(b4_ckpt["model_state_dict"])
+    model_b4.eval()
 
-    # Load B5 weights
     b5_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_b5_model_epoch4.pth'), map_location=device,weights_only=False)
     model_b5.load_state_dict(b5_ckpt["model_state_dict"])
     model_b5.eval()
@@ -52,17 +46,15 @@ try:
 except Exception as e:
     print(f"❌ Error loading models: {e}")
 
-# ✅ Define Image Preprocessing for Inference
 def get_inference_transforms():
     return transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Ensure consistency
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
     ])
 
 transform = get_inference_transforms()
 
-# ✅ Global Variables to Store Data
 latest_3rd_frame = None
 facial_analysis_data = None
 
@@ -75,9 +67,8 @@ def home():
 def upload_and_process():
     """Handles video upload, extracts frames, stores the 3rd frame, and predicts deepfake probability."""
     
-    global latest_3rd_frame  # Use global variable for storing 3rd frame
+    global latest_3rd_frame 
 
-    # ✅ Step 1: File Handling
     if "video" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -85,16 +76,13 @@ def upload_and_process():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
-    # Save uploaded file
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
-    # ✅ Step 2: Extract Frames from Video
     video_name = os.path.splitext(filename)[0]
     frame_output_folder = os.path.join(FRAME_FOLDER, video_name)
-    
-    # 🚀 New Step: Clear old images before storing new frames
+
     if os.path.exists(frame_output_folder):
         for file in os.listdir(frame_output_folder):
             file_path = os.path.join(frame_output_folder, file)
@@ -105,12 +93,10 @@ def upload_and_process():
 
     extract_frames(filepath, frame_output_folder, frame_interval=3)
 
-    # ✅ Step 3: Store 3rd Frame (If Exists)
     frame_list = sorted(os.listdir(frame_output_folder))
     if len(frame_list) >= 3:
         latest_3rd_frame = os.path.join(frame_output_folder, frame_list[2])  # Store 3rd frame path
 
-    # ✅ Step 4: Process Faces
     processed_images = []
     for img_file in os.listdir(frame_output_folder):
         img_path = os.path.join(frame_output_folder, img_file)
@@ -121,10 +107,9 @@ def upload_and_process():
     if not processed_images:
         return jsonify({"error": "No faces detected in the video"}), 400
 
-    # ✅ Step 5: Predict Deepfake Probability using Ensemble
     predictions = []
     with torch.no_grad():
-        for img_file in tqdm(os.listdir(frame_output_folder), desc="🔍 Predicting Deepfakes"):
+        for img_file in tqdm(os.listdir(frame_output_folder), desc="Predicting Deepfakes"):
             img_path = os.path.join(frame_output_folder, img_file)
             image = cv2.imread(img_path)
             if image is None:
@@ -134,28 +119,25 @@ def upload_and_process():
             image = Image.fromarray(image)
             image_tensor = transform(image).unsqueeze(0).to(device)
 
-            # Inference from both models
-            out_x = model_xception(image_tensor).squeeze().item()
+            out_x = model_b4(image_tensor).squeeze().item()
             out_b5 = model_b5(image_tensor).squeeze().item()
 
-            # Apply sigmoid and average the probabilities
             prob_x = torch.sigmoid(torch.tensor(out_x)).item()
             prob_b5 = torch.sigmoid(torch.tensor(out_b5)).item()
             final_prob = (prob_x + prob_b5) / 2
 
             predictions.append(final_prob)
 
-    # ✅ Step 6: Final Decision
     if not predictions:
         return jsonify({"error": "No valid frames were processed for prediction."}), 400
 
-    avg_probability = np.mean(predictions)  # Compute Mean Probability
+    avg_probability = np.mean(predictions)  
     is_fake = "FAKE" if avg_probability > 0.6 else "REAL"
 
-    print(f"🎯 Prediction: {is_fake}, Score: {avg_probability:.4f}")
+    print(f" Prediction: {is_fake}, Score: {avg_probability:.4f}")
 
     return jsonify({
-        "message": "✅ Prediction Complete!",
+        "message": " Prediction Complete!",
         "prediction": is_fake,
         "score": avg_probability
     })
@@ -165,22 +147,20 @@ def upload_and_process():
 def get_3rd_frame():
     """Returns the 3rd frame as a raw byte array in JSON response."""
 
-    global latest_3rd_frame  # Use global variable for 3rd frame
+    global latest_3rd_frame  
 
     if not latest_3rd_frame or not os.path.exists(latest_3rd_frame):
         return jsonify({"error": "3rd frame not found or not available"}), 400
 
     try:
-        # ✅ Read Image as Bytes
         with open(latest_3rd_frame, "rb") as img_file:
             img_bytes = img_file.read()
 
-        # Clear the stored frame after sending to prevent interference
         latest_3rd_frame = None
 
         return jsonify({
-            "message": "✅ 3rd Frame Retrieved",
-            "image_bytes": list(img_bytes)  # Convert bytes to a list for JSON serialization
+            "message": " 3rd Frame Retrieved",
+            "image_bytes": list(img_bytes) 
         })
 
     except Exception as e:
@@ -194,38 +174,31 @@ def get_gradcam():
     if not latest_3rd_frame or not os.path.exists(latest_3rd_frame):
         return jsonify({"error": "3rd frame not found"}), 400
 
-    # Load Image
     image = cv2.imread(latest_3rd_frame)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB for PIL
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
     pil_image = Image.fromarray(image)
 
-    # Apply Model Transformations
     input_tensor = transform(pil_image).unsqueeze(0).to(device)
 
-    # Compute Grad-CAM
     heatmap = gradcam.generate_heatmap(input_tensor)
     overlay = gradcam.apply_heatmap(np.array(pil_image), heatmap)
 
-    # Analyze facial regions
     region_scores, focused_regions = gradcam.analyze_facial_regions(np.array(pil_image), heatmap)
     facial_analysis_data = {
         "focused_regions": focused_regions
     }
 
-    # Save Heatmap Image
     gradcam_path = os.path.join(FRAME_FOLDER, "gradcam_heatmap.jpg")
     cv2.imwrite(gradcam_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
 
     try:
-        # ✅ Read Heatmap Image as Bytes
         with open(gradcam_path, "rb") as img_file:
             img_bytes = img_file.read()
 
-        # Delete the heatmap file after sending the response
         os.remove(gradcam_path)
 
         return jsonify({
-            "message": "✅ Grad-CAM heatmap generated!",
+            "message": " Grad-CAM heatmap generated!",
             "heatmap_bytes": list(img_bytes)
         })
 
@@ -242,9 +215,8 @@ def get_facial_analysis():
         return jsonify({"error": "No facial analysis data available"}), 400
 
     response = jsonify(facial_analysis_data)
-    facial_analysis_data = None  # Clear the stored data after sending the response
+    facial_analysis_data = None  
 
-    # Clean up uploaded video and processed frames
     if latest_3rd_frame:
         video_name = os.path.splitext(os.path.basename(latest_3rd_frame))[0]
         frame_output_folder = os.path.join(FRAME_FOLDER, video_name)
@@ -261,6 +233,5 @@ def get_facial_analysis():
 
     return response
 
-# ✅ Run Flask App
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

@@ -19,7 +19,7 @@ def extract_frames(video_path, output_folder, frame_interval=3):  # Extract ever
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
-            break  # Stop when video ends
+            break  
 
         if frame_count % frame_interval == 0:
             frame_filename = f"{output_folder}/{video_name}_frame_{frame_count}.jpg"
