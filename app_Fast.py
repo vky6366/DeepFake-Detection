@@ -88,15 +88,6 @@ def get_ip_address():
 
 app = FastAPI(title="Deepfake Detection API")
 
-# Add CORS middleware - allow all origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 app.mount("/static", StaticFiles(directory=WEBSITE_FOLDER), name="static")
 @app.get("/")
 async def read_root():
@@ -271,7 +262,7 @@ if __name__ == "__main__":
     
     # Get the IP address
     host_ip = get_ip_address()
-    port = 8000
+    port = 5000
     
     print("\n" + "="*50)
     print(f"Server is running on:")
