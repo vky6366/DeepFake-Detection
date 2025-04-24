@@ -1,7 +1,8 @@
-// JavaScript code for the video upload and prediction functionality
-// This script handles the video upload, displays the file name, and fetches the prediction and Grad-CAM heatmap.
-// grab all the elements we need
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000' 
+    : `http://${window.location.hostname}:8000`;
 
+console.log('API Base URL:', API_BASE_URL);
 console.log('Script loaded!');
 
 // Drag and drop functionality
@@ -36,7 +37,8 @@ document.getElementById('uploadForm').addEventListener('submit', async function 
         const formData = new FormData();
         formData.append('video', fileInput.files[0]);
 
-        const response = await fetch('/upload', {
+        // Updated to use API_BASE_URL
+        const response = await fetch(`${API_BASE_URL}/upload`, {
             method: 'POST',
             body: formData
         });
@@ -63,7 +65,8 @@ document.getElementById('uploadForm').addEventListener('submit', async function 
 // Function to fetch the 3rd frame from the server
 async function fetch3rdFrame() {
     try {
-        const response = await fetch('/get_3rd_frame');
+        // Updated to use API_BASE_URL
+        const response = await fetch(`${API_BASE_URL}/get_3rd_frame`);
         if (!response.ok) throw new Error('Failed to fetch 3rd frame');
 
         const data = await response.json();
@@ -81,19 +84,20 @@ async function fetch3rdFrame() {
 // Function to fetch the Grad-CAM heatmap from the server
 async function fetchGradCAM() {
     try {
-        const response = await fetch(`/gradcam?timestamp=${new Date().getTime()}`); // Added a timestamp to the URL to bust the cache
+        // Updated to use API_BASE_URL
+        const response = await fetch(`${API_BASE_URL}/gradcam?timestamp=${new Date().getTime()}`);
         if (!response.ok) throw new Error('Failed to fetch heatmap');
 
         const data = await response.json();
-        console.log('Server response:', data); // Log  is used to the server response to check the data
+        console.log('Server response:', data);
 
         if (!data.heatmap_bytes || data.heatmap_bytes.length === 0) throw new Error('Invalid heatmap data');
 
         const blob = new Blob([new Uint8Array(data.heatmap_bytes)], { type: "image/jpeg" });
-        console.log('Blob created:', blob); // Log the Blob to ensure it is created correctly
+        console.log('Blob created:', blob);
 
         const gradcamImg = document.getElementById('gradcamImg');
-        if (!gradcamImg) throw new Error('gradcamImg element not found'); // Check if the element exists
+        if (!gradcamImg) throw new Error('gradcamImg element not found');
 
         // Revoke any previous object URL to prevent memory leaks
         if (gradcamImg.src) {
@@ -102,7 +106,7 @@ async function fetchGradCAM() {
 
         gradcamImg.src = URL.createObjectURL(blob);
         gradcamImg.classList.remove('hidden');
-        console.log('Heatmap displayed successfully'); // Log success message
+        console.log('Heatmap displayed successfully');
     } catch (error) {
         console.error('Failed to load heatmap:', error);
         alert('Error retrieving the heatmap. Please try again.');
