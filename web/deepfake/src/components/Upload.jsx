@@ -14,8 +14,8 @@ const Uploadform = ({ setLoading, setPrediction, fetchVisualAnalysis }) => {
       alert("Please select a video file");
       setFile(null);
     }
-  }
-}
+  };
+};
 
 // handling the form submission
 const handleSubmit = async (e) => {
@@ -28,7 +28,6 @@ const handleSubmit = async (e) => {
 
   const formData = new FormData();
   formData.append("video", file);
-
 
   // set loading  for processing the video file
   try {
@@ -45,12 +44,9 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
   // methode
-}
-
-
+};
 
 return (
-
   // form for thr input of file 
   <form onSunmit={handleSubmit} className="flex flex-col gap-6 items-center mt-6">
     <label
@@ -68,23 +64,19 @@ return (
       // handle the file uploading
       />
 
-{/* if file is npt selected correctly */}
+      {/* if file is npt selected correctly */}
       <span className="text-gray-700 font-medium">
         {file ? file.name : "No file is selected"}
       </span>
-
     </label>
 
-{/* submission button  */}
+    {/* submission button  */}
     <button
       type="submit"
       type="submit"
       className="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300"
     >  analyisis the video</button>
   </form>
-
-
-
-)
+);
 
 export default Uploadform;
