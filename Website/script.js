@@ -1,9 +1,12 @@
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:8000' 
-    : `http://${window.location.hostname}:8000`;
 
-console.log('API Base URL:', API_BASE_URL);
-console.log('Script loaded!');
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000'
+  : `http://${window.location.hostname}:5000`;
+
+const instance = axios.create({
+  baseURL: API_BASE_URL,
+});
+
 
 // Drag and drop functionality
 document.getElementById('videoInput').addEventListener('change', function () {
