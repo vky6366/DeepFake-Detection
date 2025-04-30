@@ -127,7 +127,8 @@ async def upload_and_process(video: UploadFile = File(...)):
         latest_3rd_frame = os.path.join(frame_output_folder, frame_list[2])
 
     processed_images = []
-    for img_file in os.listdir(frame_output_folder):
+    frame_files = os.listdir(frame_output_folder)
+    for img_file in tqdm(frame_files, desc="Processing Faces", unit="frame"):
         img_path = os.path.join(frame_output_folder, img_file)
         processed_img = zoom_into_face(img_path, frame_output_folder)
         if processed_img:
