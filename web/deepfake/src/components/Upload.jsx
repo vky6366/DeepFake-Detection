@@ -19,7 +19,7 @@ const Upload = ({ setLoading, setPrediction, fetchVisualAnalysis }) => {
   // handling the form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // const data = { name: "test" };
+   
     if (!file) {
       alert("Please select a video file");
       return;
@@ -27,23 +27,6 @@ const Upload = ({ setLoading, setPrediction, fetchVisualAnalysis }) => {
 
     const formData = new FormData();
     formData.append("video", file);
-
-
-    // const response = await fetch("http://localhost:5000/", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-  
-    // const result = await response.json();
-    // console.log(result);
-
-
-
-
-
 
     // set loading  for processing the video file
     try {
