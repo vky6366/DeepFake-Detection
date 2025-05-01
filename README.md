@@ -39,7 +39,7 @@ This project presents a real-time deepfake detection system that leverages frame
 ## 🚀 Project Structure
 
 - [📱 Android App](./MainApp) - Mobile application for deepfake detection
-- [🌐 Website](./Web/deepfake) - Website for deepfake detection
+- [🌐 Website](./web/deepfake) - Website for deepfake detection
 - [🧠 Training](./Training) - Model training code and documentation
 - [🔍 Model](./Model) - Trained models and inference code
 - [ Utils](./Utils) - All essential codes
