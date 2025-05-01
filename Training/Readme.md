@@ -94,8 +94,8 @@ Performance metrics for individual datasets were not recorded. For best practice
 ## Hardware Requirements
 For Training:
 - GPU: Tesla T4 or equivalent
-- 16 GB 
-- 100 GB
+- RAM: 16 GB 
+- Storage: 100 GB
 
 
 ## 🔄 Training Workflow
