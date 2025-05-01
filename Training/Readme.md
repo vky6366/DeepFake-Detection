@@ -1,5 +1,5 @@
-#Real-Time Deepfake Detection via Frame-Level EfficientNet Ensemble and Client-Server Deployment
----
+# Real-Time Deepfake Detection via Frame-Level EfficientNet Ensemble and Client-Server Deployment
+
 # Training Details for DeepFake Detection Model
 
 ## Dataset Information
