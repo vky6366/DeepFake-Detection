@@ -36,7 +36,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-WEBSITE_FOLDER = os.path.join(BASE_DIR, 'fake1')
+WEBSITE_FOLDER = os.path.join(BASE_DIR, 'web')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
