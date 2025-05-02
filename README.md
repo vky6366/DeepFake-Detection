@@ -36,6 +36,14 @@ This project presents a real-time deepfake detection system that leverages frame
 
 **Data Format:** Multipart uploads and byte-array responses for efficient video and image processing
 
+## 🚀 Project Structure
+
+- [📱 Android App](./MainApp) - Mobile application for deepfake detection
+- [🌐 Website](./web/deepfake) - Website for deepfake detection
+- [🧠 Training](./Training) - Model training code and documentation
+- [🔍 Model](./Model) - Trained models and inference code
+- [ Utils](./Utils) - All essential codes
+
 ## 📁Directory Structure :
 ```
 Base Directory:
