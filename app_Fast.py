@@ -93,7 +93,7 @@ app = FastAPI(title="Deepfake Detection API")
 app.mount("/static", StaticFiles(directory=WEBSITE_FOLDER), name="static")
 @app.get("/")
 async def read_root():
-    return FileResponse(os.path.join(WEBSITE_FOLDER, "index.html"))
+    return FileResponse(os.path.join(WEBSITE_FOLDER, "App.jsx"))
 
 @app.post("/upload")
 async def upload_and_process(video: UploadFile = File(...)):
