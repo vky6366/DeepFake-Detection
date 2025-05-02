@@ -34,7 +34,7 @@ model_b5 = DeepfakeDetectorb5().to(device)
 gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])  
 #gradcam = GradCAM(model_b5, model_b5.base_model.features[-1])  
 try:
-    b4_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_Xception_model_epoch4 .pth'), map_location=device,weights_only=False)
+    b4_ckpt = torch.load(os.path.join(BASE_DIR, 'Model', 'best_b4_model_epoch6.pth'), map_location=device,weights_only=False)
     model_b4.load_state_dict(b4_ckpt["model_state_dict"])
     model_b4.eval()
 
@@ -166,45 +166,80 @@ def get_3rd_frame():
     except Exception as e:
         return jsonify({"error": f"Failed to read frame: {str(e)}"}), 500
 
+# Modified GradCAM route to handle errors more gracefully
 @app.route("/gradcam", methods=["GET"])
 def get_gradcam():
     """Returns Grad-CAM heatmap of the 3rd frame with facial region analysis."""
 
     global latest_3rd_frame, facial_analysis_data
-    if not latest_3rd_frame or not os.path.exists(latest_3rd_frame):
-        return jsonify({"error": "3rd frame not found"}), 400
-
-    image = cv2.imread(latest_3rd_frame)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
-    pil_image = Image.fromarray(image)
-
-    input_tensor = transform(pil_image).unsqueeze(0).to(device)
-
-    heatmap = gradcam.generate_heatmap(input_tensor)
-    overlay = gradcam.apply_heatmap(np.array(pil_image), heatmap)
-
-    region_scores, focused_regions = gradcam.analyze_facial_regions(np.array(pil_image), heatmap)
-    facial_analysis_data = {
-        "focused_regions": focused_regions
-    }
-
-    gradcam_path = os.path.join(FRAME_FOLDER, "gradcam_heatmap.jpg")
-    cv2.imwrite(gradcam_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+    
+    # Add proper error handling for missing frame
+    if not latest_3rd_frame:
+        return jsonify({"error": "No frame available for analysis"}), 400
+    
+    if not os.path.exists(latest_3rd_frame):
+        return jsonify({"error": f"Frame file not found: {latest_3rd_frame}"}), 400
 
     try:
+        # Load and preprocess the image
+        image = cv2.imread(latest_3rd_frame)
+        if image is None:
+            return jsonify({"error": "Failed to read image file"}), 400
+            
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
+        pil_image = Image.fromarray(image)
+
+        # Create input tensor
+        input_tensor = transform(pil_image).unsqueeze(0).to(device)
+
+        # Generate heatmap with error handling
+        try:
+            heatmap = gradcam.generate_heatmap(input_tensor)
+            if heatmap is None:
+                return jsonify({"error": "Failed to generate heatmap"}), 400
+        except Exception as e:
+            print(f"Heatmap generation error: {str(e)}")
+            return jsonify({"error": f"Heatmap generation failed: {str(e)}"}), 400
+
+        # Apply heatmap overlay
+        overlay = gradcam.apply_heatmap(np.array(pil_image), heatmap)
+        
+        # Analyze facial regions
+        try:
+            region_scores, focused_regions = gradcam.analyze_facial_regions(np.array(pil_image), heatmap)
+            facial_analysis_data = {
+                "focused_regions": focused_regions
+            }
+        except Exception as e:
+            print(f"Facial analysis error: {str(e)}")
+            # Continue even if facial analysis fails
+            facial_analysis_data = {
+                "focused_regions": ["Analysis unavailable"]
+            }
+
+        # Save and return the heatmap
+        gradcam_path = os.path.join(FRAME_FOLDER, "gradcam_heatmap.jpg")
+        cv2.imwrite(gradcam_path, cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+
         with open(gradcam_path, "rb") as img_file:
             img_bytes = img_file.read()
 
-        os.remove(gradcam_path)
+        # Clean up the temporary file
+        try:
+            os.remove(gradcam_path)
+        except Exception as e:
+            print(f"Warning: Could not remove temporary file: {str(e)}")
 
         return jsonify({
-            "message": " Grad-CAM heatmap generated!",
+            "message": "Grad-CAM heatmap generated!",
             "heatmap_bytes": list(img_bytes)
         })
 
     except Exception as e:
-        return jsonify({"error": f"Failed to read heatmap: {str(e)}"}), 500
-
+        print(f"GradCAM processing error: {str(e)}")
+        return jsonify({"error": f"Failed to process GradCAM: {str(e)}"}), 500
+    
+    
 @app.route("/facial_analysis", methods=["GET"])
 def get_facial_analysis():
     """Returns the facial region analysis from the latest Grad-CAM computation."""

@@ -22,19 +22,21 @@ import socket
 app = FastAPI(title="Deepfake Detection API")
 
 # Add CORS middleware
+# Update the CORS middleware settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+    expose_headers=["*"]  # Exposes all headers
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
+WEBSITE_FOLDER = os.path.join(BASE_DIR, 'fake1')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
@@ -172,7 +174,7 @@ async def upload_and_process(video: UploadFile = File(...)):
         "score": float(avg_probability)
     }
 
-@app.get("/get_3rd_frame")
+@app.get("/3rd_frame")
 async def get_3rd_frame():
     """Returns the 3rd frame as a raw byte array in JSON response."""
     global latest_3rd_frame
@@ -183,14 +185,17 @@ async def get_3rd_frame():
     try:
         with open(latest_3rd_frame, "rb") as img_file:
             img_bytes = img_file.read()
-
-        latest_3rd_frame = None
+            
+        # Debug print
+        print(f"Reading frame from: {latest_3rd_frame}")
+        print(f"Image bytes length: {len(img_bytes)}")
 
         return {
             "message": "3rd Frame Retrieved",
             "image_bytes": list(img_bytes)
         }
     except Exception as e:
+        print(f"Error reading frame: {str(e)}")  # Debug print
         raise HTTPException(status_code=500, detail=f"Failed to read frame: {str(e)}")
 
 @app.get("/gradcam")
@@ -261,16 +266,15 @@ async def get_facial_analysis():
 if __name__ == "__main__":
     import uvicorn
     
-    # Get the IP address
-    host_ip = get_ip_address()
+    host_ip = "0.0.0.0"  # This allows external connections
     port = 5000
     
     print("\n" + "="*50)
     print(f"Server is running on:")
     print(f"Local URL:     http://localhost:{port}")
-    print(f"Network URL:   http://{host_ip}:{port}")
-    print(f"API Docs URL:  http://{host_ip}:{port}/docs")
+    print(f"Network URL:   http://{get_ip_address()}:{port}")
+    print(f"API Docs URL:  http://{get_ip_address()}:{port}/docs")
     print("="*50 + "\n")
     
-    # Run the server
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Run the server with these settings
+    uvicorn.run(app, host=host_ip, port=port)

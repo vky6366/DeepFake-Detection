@@ -1,114 +1,202 @@
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:8000' 
-    : `http://${window.location.hostname}:8000`;
+document.addEventListener('DOMContentLoaded', () => {
+    const baseUrl = window.location.origin;
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressBar = uploadProgress.querySelector('.progress-bar');
+    const results = document.getElementById('results');
 
-console.log('API Base URL:', API_BASE_URL);
-console.log('Script loaded!');
+    // Drag and drop handlers
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
 
-// Drag and drop functionality
-document.getElementById('videoInput').addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-        if (!file.type.startsWith('video/')) {
-            alert('Please upload a valid video file.');
-            this.value = '';
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    // Handle file drop
+    dropZone.addEventListener('drop', handleDrop);
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        handleFile(file);
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        handleFile(file);
+    }
+
+    function showError(message, isWarning = false) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${isWarning ? 'alert-warning' : 'alert-danger'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.querySelector('.upload-container').insertAdjacentElement('afterend', alertDiv);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 5000);
+    }
+
+    async function handleFile(file) {
+        if (!file || !file.type.startsWith('video/')) {
+            showError('Please upload a valid video file');
             return;
         }
-        document.getElementById('fileName').textContent = file.name;
-    } else {
-        document.getElementById('fileName').textContent = "Drop your video here or click to browse";
-    }
-});
 
-// Form submission handler
-document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    // Check if a file is selected
-    const fileInput = document.getElementById('videoInput');
-    if (fileInput.files.length === 0) {
-        alert('Please select a video before uploading.');
-        return;
-    }
-
-    try {
-        document.getElementById('loading').classList.remove('hidden');
+        // Clear previous alerts
+        document.querySelectorAll('.alert').forEach(alert => alert.remove());
+        
+        uploadProgress.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        results.classList.add('d-none');
 
         const formData = new FormData();
-        formData.append('video', fileInput.files[0]);
+        formData.append('video', file);
 
-        // Updated to use API_BASE_URL
-        const response = await fetch(`${API_BASE_URL}/upload`, {
-            method: 'POST',
-            body: formData
-        });
+        try {
+            // Upload video and get prediction
+            progressBar.style.width = '30%';
+            const response = await fetch(`${baseUrl}/upload`, {  // Add baseUrl
+                method: 'POST',
+                body: formData
+            });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.statusText}`);
+            }
+
+            const predictionData = await response.json();
+            progressBar.style.width = '60%';
+
+            // Initialize result data structure
+            let resultData = {
+                prediction: predictionData,
+                heatmap: null,
+                analysis: null
+            };
+
+            try {
+                // Get GradCAM heatmap
+                const heatmapResponse = await fetch(`${baseUrl}/gradcam`);  // Add baseUrl
+                if (heatmapResponse.ok) {
+                    resultData.heatmap = await heatmapResponse.json();
+                } else {
+                    showError('Warning: Could not generate heatmap visualization', true);
+                }
+            } catch (error) {
+                console.error('Heatmap fetch error:', error);
+                showError('Warning: Could not generate heatmap visualization', true);
+            }
+
+            progressBar.style.width = '80%';
+
+            try {
+                // Get facial analysis
+                const analysisResponse = await fetch(`${baseUrl}/facial_analysis`);  // Add baseUrl
+                if (analysisResponse.ok) {
+                    resultData.analysis = await analysisResponse.json();
+                } else {
+                    showError('Warning: Could not perform facial analysis', true);
+                }
+            } catch (error) {
+                console.error('Analysis fetch error:', error);
+                showError('Warning: Could not perform facial analysis', true);
+            }
+
+            progressBar.style.width = '100%';
+            
+            // Display results even if some parts failed
+            displayResults(resultData);
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Error processing video: ' + error.message);
+        } finally {
+            setTimeout(() => {
+                uploadProgress.classList.add('d-none');
+                progressBar.style.width = '0%';
+            }, 500);
+        }
+    }
+
+    function displayResults(data) {
+        // Display prediction result
+        const predictionResult = document.getElementById('prediction-result');
+        const confidenceScore = document.getElementById('confidence-score');
+        
+        predictionResult.textContent = data.prediction.prediction;
+        predictionResult.className = data.prediction.prediction === 'FAKE' ? 
+            'prediction-fake' : 'prediction-real';
+        
+        confidenceScore.textContent = `${(data.prediction.score * 100).toFixed(2)}%`;
+
+        // Display original frame if available
+        const originalFrame = document.getElementById('original-frame');
+        const originalFrameContainer = originalFrame.closest('.col-md-6');
+        if (data.frame && data.frame.image_bytes) {
+            originalFrame.src = `data:image/jpeg;base64,${arrayBufferToBase64(data.frame.image_bytes)}`;
+            originalFrameContainer.classList.remove('d-none');
+        } else {
+            originalFrameContainer.classList.add('d-none');
         }
 
-        // predication response in json format
-        const data = await response.json();
-        document.getElementById('prediction').textContent = `${data.prediction} (Score: ${(data.score * 100).toFixed(2)}%)`;
-        document.getElementById('results').classList.remove('hidden');
+        // Display heatmap if available
+        const heatmapImg = document.getElementById('heatmap');
+        const heatmapContainer = heatmapImg.closest('.col-md-6');
+        if (data.heatmap && data.heatmap.heatmap_bytes) {
+            heatmapImg.src = `data:image/jpeg;base64,${arrayBufferToBase64(data.heatmap.heatmap_bytes)}`;
+            heatmapContainer.classList.remove('d-none');
+        } else {
+            heatmapContainer.classList.add('d-none');
+        }
 
-        await Promise.all([fetch3rdFrame(), fetchGradCAM()]);
+        // Display facial analysis if available
+        const facialAnalysisSection = document.getElementById('facial-analysis');
+        const focusedRegions = document.getElementById('focused-regions');
+        if (data.analysis && data.analysis.focused_regions) {
+            focusedRegions.innerHTML = '';
+            Object.entries(data.analysis.focused_regions).forEach(([region, score]) => {
+                const regionElement = document.createElement('div');
+                regionElement.className = 'region-item';
+                regionElement.textContent = `${region}: ${score}%`;
+                focusedRegions.appendChild(regionElement);
+            });
+            facialAnalysisSection.classList.remove('d-none');
+        } else {
+            facialAnalysisSection.classList.add('d-none');
+        }
 
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error processing the video. Please try again.');
-    } finally {
-        document.getElementById('loading').classList.add('hidden');
+        results.classList.remove('d-none');
+    }
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
     }
 });
-
-// Function to fetch the 3rd frame from the server
-async function fetch3rdFrame() {
-    try {
-        // Updated to use API_BASE_URL
-        const response = await fetch(`${API_BASE_URL}/get_3rd_frame`);
-        if (!response.ok) throw new Error('Failed to fetch 3rd frame');
-
-        const data = await response.json();
-        if (!data.image_bytes) throw new Error('Invalid image data');
-
-        const blob = new Blob([new Uint8Array(data.image_bytes)], { type: "image/jpeg" });
-        const frameImg = document.getElementById('frameImg');
-        frameImg.src = URL.createObjectURL(blob);
-        frameImg.classList.remove('hidden');
-    } catch (error) {
-        console.error('Failed to load 3rd frame:', error);
-    }
-}
-
-// Function to fetch the Grad-CAM heatmap from the server
-async function fetchGradCAM() {
-    try {
-        // Updated to use API_BASE_URL
-        const response = await fetch(`${API_BASE_URL}/gradcam?timestamp=${new Date().getTime()}`);
-        if (!response.ok) throw new Error('Failed to fetch heatmap');
-
-        const data = await response.json();
-        console.log('Server response:', data);
-
-        if (!data.heatmap_bytes || data.heatmap_bytes.length === 0) throw new Error('Invalid heatmap data');
-
-        const blob = new Blob([new Uint8Array(data.heatmap_bytes)], { type: "image/jpeg" });
-        console.log('Blob created:', blob);
-
-        const gradcamImg = document.getElementById('gradcamImg');
-        if (!gradcamImg) throw new Error('gradcamImg element not found');
-
-        // Revoke any previous object URL to prevent memory leaks
-        if (gradcamImg.src) {
-            URL.revokeObjectURL(gradcamImg.src);
-        }
-
-        gradcamImg.src = URL.createObjectURL(blob);
-        gradcamImg.classList.remove('hidden');
-        console.log('Heatmap displayed successfully');
-    } catch (error) {
-        console.error('Failed to load heatmap:', error);
-        alert('Error retrieving the heatmap. Please try again.');
-    }
-}
