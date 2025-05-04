@@ -1,25 +1,9 @@
 console.log('Script loaded!');
-
 // Drag and drop functionality
-document.getElementById('videoInput').addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-        if (!file.type.startsWith('video/')) {
-            alert('Please upload a valid video file.');
-            this.value = '';
-            return;
-        }
-        document.getElementById('fileName').textContent = file.name;
-    } else {
-        document.getElementById('fileName').textContent = "Drop your video here or click to browse";
-    }
-});
-
 // Form submission handler
 document.getElementById('uploadForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    // Check if a file is selected
     const fileInput = document.getElementById('videoInput');
     if (fileInput.files.length === 0) {
         alert('Please select a video before uploading.');
@@ -41,17 +25,15 @@ document.getElementById('uploadForm').addEventListener('submit', async function 
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        // prediction response in json format
         const data = await response.json();
         document.getElementById('prediction').textContent = `${data.prediction}`;
         document.getElementById('results').classList.remove('hidden');
 
-        // Call heatmap analysis and handle any errors silently
-        try {
+        
+        if (data.prediction.toLowerCase() === 'fake') {
             await fetchGradCAM();
-        } catch (error) {
-            console.warn('Heatmap generation completed with warnings:', error);
-            // Don't show alert here, just log the warning
+        } else {
+            await fetchOriginalFrame();
         }
 
     } catch (error) {
@@ -62,40 +44,37 @@ document.getElementById('uploadForm').addEventListener('submit', async function 
     }
 });
 
-// Function to fetch the Grad-CAM heatmap from the server
-async function fetchGradCAM() {
+async function fetchOriginalFrame() {
     try {
-        const response = await fetch(`/gradcam?timestamp=${new Date().getTime()}`);
+        const response = await fetch(`/frame?timestamp=${new Date().getTime()}`);
         if (!response.ok) {
-            console.warn('Non-OK response from heatmap endpoint:', response.status);
-            return; // Silent fail
+            console.warn('Non-OK response from frame endpoint:', response.status);
+            return;
         }
 
         const data = await response.json();
-        console.log('Heatmap response received');
+        console.log('Frame response received');
 
-        if (!data.heatmap_bytes || data.heatmap_bytes.length === 0) {
-            console.warn('Empty heatmap data received');
-            return; // Silent fail
+        if (!data.frame_bytes || data.frame_bytes.length === 0) {
+            console.warn('Empty frame data received');
+            return;
         }
 
-        const blob = new Blob([new Uint8Array(data.heatmap_bytes)], { type: "image/jpeg" });
-        const gradcamImg = document.getElementById('gradcamImg');
+        const blob = new Blob([new Uint8Array(data.frame_bytes)], { type: "image/jpeg" });
+        const gradcamImg = document.getElementById('gradcamImg'); // reuse the same img tag
         if (!gradcamImg) {
             console.warn('gradcamImg element not found');
-            return; // Silent fail
+            return;
         }
 
-        // Revoke any previous object URL to prevent memory leaks
         if (gradcamImg.src) {
             URL.revokeObjectURL(gradcamImg.src);
         }
 
         gradcamImg.src = URL.createObjectURL(blob);
         gradcamImg.classList.remove('hidden');
-        console.log('Heatmap displayed successfully');
+        console.log('Original frame displayed successfully');
     } catch (error) {
-        console.warn('Heatmap generation warning:', error);
-        // Don't show alert, just log the warning
+        console.warn('Original frame loading warning:', error);
     }
 }
