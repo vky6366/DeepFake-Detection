@@ -1,91 +1,62 @@
-import React, { useState } from "react";
-import axios from "axios";
-import Header from "./components/Header";
-import Loading from "./components/Loading";
-import Result from "./components/Result";
-import Upload from "./components/Upload";
-import VisualAnalysis from "./components/VisualAnalysis";
+import React, { useState } from 'react';
+import Api from '../server/api';
+import Header from './Header';
+import Upload from './Upload';
+import Loading from './Loading';
+import Result from './Result';
+import VisualAnalysis from './VisualAnalysis';
 
-const BASE_URL = "http://127.0.0.1:5000"; // Fix typo in 127.0.0:5000
-
-function Display() {
-  const [file, setFile] = useState(null);
+const Display = () => {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [prediction, setPrediction] = useState(null);
-  const [frameImg, setFrameImg] = useState(null);
-  const [gradcamImg, setGradcamImg] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type.startsWith("video/")) {
-      setFile(selectedFile);
-    } else {
-      alert("Please select a valid video file.");
-      setFile(null);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!file) {
-      alert("Please select a video file.");
-      return;
-    }
+  const handleUpload = async (videoFile) => {
+    if (!videoFile) return;
 
     const formData = new FormData();
-    formData.append("video", file);
+    formData.append('video', videoFile);
 
     try {
       setLoading(true);
-      const response = await axios.post(`${BASE_URL}/upload`, formData);
-      const data = response.data;
+      const response = await Api.post('/upload', formData);
+      const resData = response.data;
 
-      setPrediction(data);
-      fetch3rdFrame();
-      fetchGradCAM();
+      setData(resData);
+      if (resData.prediction.toLowerCase() === 'fake') {
+        await fetchVisual('gradcam');
+      } else {
+        setImageURL(null);
+      }
     } catch (error) {
-      console.error("Upload error:", error);
-      setPrediction({ message: "❌ Error occurred during prediction." });
+      alert('Error processing the video. Please try again.');
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch frame image from backend
-  const fetch3rdFrame = async () => {
+  const fetchVisual = async (type) => {
     try {
-      const response = await fetch(`${BASE_URL}/get_3rd_frame`);
-      const data = await response.json();
-
-      const blob = new Blob([new Uint8Array(data.image_bytes)], { type: "image/jpeg" });
-      setFrameImg(URL.createObjectURL(blob));
+      const res = await Api.get(`/${type}`, { responseType: 'arraybuffer' });
+      const blob = new Blob([res.data], { type: 'image/jpeg' });
+      setImageURL(URL.createObjectURL(blob));
     } catch (error) {
-      console.error("Failed to load 3rd frame:", error);
-    }
-  };
-
-  // Fetch Grad-CAM image from backend
-  const fetchGradCAM = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/gradcam?timestamp=${new Date().getTime()}`);
-      const data = await response.json();
-
-      const blob = new Blob([new Uint8Array(data.heatmap_bytes)], { type: "image/jpeg" });
-      setGradcamImg(URL.createObjectURL(blob));
-    } catch (error) {
-      console.error("Failed to load Grad-CAM:", error);
+      console.warn('Error fetching visual analysis image:', error);
     }
   };
 
   return (
-    <div className="p-4">
+    <div className="gradient-bg min-h-screen flex flex-col items-center">
       <Header />
-      <Upload onChange={handleFileChange} onSubmit={handleSubmit} />
-      {loading && <Loading />}
-      {prediction && <Result response={prediction} />}
-      <VisualAnalysis frameImg={frameImg} gradcamImg={gradcamImg} />
+      <main className="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl">
+        <Upload onUpload={handleUpload} />
+        {loading && <Loading />}
+        {data && <Result data={data} />}
+        {imageURL && <VisualAnalysis imageURL={imageURL} />}
+      </main>
     </div>
   );
-}
+};
 
 export default Display;

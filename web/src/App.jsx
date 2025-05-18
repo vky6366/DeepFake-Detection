@@ -1,28 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import React from 'react';
+// import Header from './components/Header';
+// import Display from './components/Display';
+// import Loading from './components/Loading';
+// import Result from './components/Result';
+// import Upload from './components/Upload';
+// import VisualAnalysis from './components/VisualAnalysis';
 
-function App() {
-  const [count, setCount] = useState(0)
+// const App=()=>{
+//   return(
+//     <div className='gradient-bg min-h-screen flex items-center justify-center'>
+//       <Header />
+//       <main className='container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl'>
+//       <Display />
+//       <Loading />
+//       <Result />
+//       <Upload />
+//       <VisualAnalysis />
+//       </main>
+//     </div>
+//   )
+// }
 
+// export default App;
+
+import React from 'react';
+import Display from './components/Display';
+
+const App = () => {
   return (
-    
-     <div className="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 space-y-4 font-sans">
-            <h1 className="text-2xl font-bold text-center text-gray-800">
-              🎬 Deepfake Video Detector
-            </h1>
+    <>
+      <div className='gradient-bg min-h-screen flex items-center justify-center'>
+        <Display />
+      </div>
+    </>
 
+  );
+};
 
-
-      <Header/>
-      <Display/>
-      <Loading/>
-      <Result/>
-      <Upload/>
-      <VisualAnalysis/>
-    </div>
-  )
-}
-
-export default App
+export default App;
