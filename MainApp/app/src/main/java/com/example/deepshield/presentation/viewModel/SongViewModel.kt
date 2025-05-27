@@ -1,5 +1,6 @@
 package com.example.deepshield.presentation.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.deepshield.data.UseCases.UseCaseHelper.UseCaseHelperClass
@@ -16,9 +17,7 @@ import javax.inject.Inject
 class SongViewModel @Inject constructor(private val usecase:UseCaseHelperClass): ViewModel() {
     private val _getAllSongsState= MutableStateFlow(GetAllSongState())
     val getAllSongsState = _getAllSongsState.asStateFlow()
-    init {
-        getAllSong()
-    }
+
     fun getAllSong(){
         viewModelScope.launch(Dispatchers.IO) {
             usecase.getAllSongUseCase.invoke().collect {result->
@@ -28,6 +27,7 @@ class SongViewModel @Inject constructor(private val usecase:UseCaseHelperClass):
                     }
                     is ResultState.Success ->{
                         _getAllSongsState.value = GetAllSongState(isLoading = false, data = result.data)
+                        Log.d("TAG", "getAllSong: ${result.data}")
                     }
                     is ResultState.Error->{
                         _getAllSongsState.value = GetAllSongState(isLoading = false, error = result.message)

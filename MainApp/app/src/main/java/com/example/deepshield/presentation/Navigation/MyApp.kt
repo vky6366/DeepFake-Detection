@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.deepshield.presentation.Screens.AllSongScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HeatCamScreen
@@ -40,6 +41,9 @@ fun MyApp() {
         }
         composable<HEATMAPSCREEN> {
             HeatCamScreen(navController = navController)
+        }
+        composable<ALLSONGSCREEN> {
+            AllSongScreen(navController = navController)
         }
 
 

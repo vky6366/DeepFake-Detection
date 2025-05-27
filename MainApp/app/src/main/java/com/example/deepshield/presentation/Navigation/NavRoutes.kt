@@ -27,3 +27,6 @@ object HEATMAPSCREEN
 
 @Serializable
 object SELECTDEEPFAKETYPESCREEN
+
+@Serializable
+object ALLSONGSCREEN

@@ -28,6 +28,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
+import com.example.deepshield.presentation.Navigation.ALLSONGSCREEN
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 
 @Composable
@@ -77,6 +78,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
                         .fillMaxWidth(0.95f)
                         .height(50.dp)
                         .clickable {
+                            navController.navigate(ALLSONGSCREEN)
 
                         }
                 ) {
