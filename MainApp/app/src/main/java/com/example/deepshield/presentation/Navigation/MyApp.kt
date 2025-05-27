@@ -7,10 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.deepshield.presentation.Screens.AllSongScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HeatCamScreen
 import com.example.deepshield.presentation.Screens.HomeScreen
+import com.example.deepshield.presentation.Screens.SelectDeepFakeTypeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
 import com.example.deepshield.presentation.Screens.VideoUploadingScreenBin
@@ -20,7 +22,11 @@ import com.example.deepshield.presentation.viewModel.MyViewModel
 @Composable
 fun MyApp() {
     val navController= rememberNavController()
-    NavHost(navController = navController, startDestination =VIDEOSELECTIONSCREEN ) {
+    NavHost(navController = navController, startDestination = SELECTDEEPFAKETYPESCREEN ) {
+
+        composable<SELECTDEEPFAKETYPESCREEN> {
+            SelectDeepFakeTypeScreen(navController = navController)
+        }
         composable<VIDEOSELECTIONSCREEN> {
             VideoScreenSelector(navController = navController)
         }
@@ -35,6 +41,9 @@ fun MyApp() {
         }
         composable<HEATMAPSCREEN> {
             HeatCamScreen(navController = navController)
+        }
+        composable<ALLSONGSCREEN> {
+            AllSongScreen(navController = navController)
         }
 
 
