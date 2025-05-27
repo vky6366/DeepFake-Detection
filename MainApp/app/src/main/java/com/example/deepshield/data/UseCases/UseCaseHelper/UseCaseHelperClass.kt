@@ -1,5 +1,6 @@
 package com.example.deepshield.data.UseCases.UseCaseHelper
 
+import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
 import com.example.deepshield.data.UseCases.GetHeatMapUseCase
@@ -9,5 +10,6 @@ data class UseCaseHelperClass(
     val getFrameFromServerUseCase: GetFrameFromServerUseCase,
     val getHeatMapFromServerUseCase: GetHeatMapUseCase,
     val getGradCamFromServerUseCase: GetGradCamUseCase,
-    val uploadVideoToDeepFakeServerUseCase: UploadVideoToServerUseCase
+    val uploadVideoToDeepFakeServerUseCase: UploadVideoToServerUseCase,
+    val getAllSongUseCase: GetAllSongUseCase
 )
