@@ -3,7 +3,7 @@ import cv2
 import torch
 import numpy as np
 import dlib
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException,Query
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,8 +18,18 @@ from Utils.gradient import GradCAM
 from Utils.face_regions import FacialRegionAnalyzer
 from typing import List, Optional
 import socket
+from serpapi.google_search import GoogleSearch
+from sentence_transformers import SentenceTransformer, util
+from pydantic import BaseModel
+from typing import List
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 app = FastAPI(title="Deepfake Detection API")
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Add CORS middleware
 # Update the CORS middleware settings
@@ -88,6 +98,38 @@ def get_ip_address():
     except Exception as e:
         print(f"Error getting IP address: {e}")
         return "0.0.0.0"
+
+# Response schema
+class Source(BaseModel):
+    title: str
+    url: str
+
+class ClaimResponse(BaseModel):
+    claim: str
+    result: str
+    similarity_score: Optional[float]
+    sources: List[Source]
+
+# Helper function
+def google_news_search(query):
+    params = {
+        "engine": "google",
+        "q": query,
+        "api_key": SERPAPI_KEY, 
+        "gl": "in",
+        "tbm": "nws"
+    }
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    articles = results.get("news_results", [])
+    
+    structured = []
+    for article in articles:
+        structured.append({
+            "title": article.get("title", "No Title"),
+            "url": article.get("link", "#")
+        })
+    return structured
 
 app = FastAPI(title="Deepfake Detection API")
 
@@ -308,6 +350,35 @@ async def upload_image(image: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
+@app.get("/fact-check", response_model=ClaimResponse)
+def fact_check(claim: str = Query(..., description="The news claim to verify")):
+    results = google_news_search(claim)
+    
+    if not results:
+        return {
+            "claim": claim,
+            "result": "Fake",
+            "sources": []
+        }
+
+    claim_embedding = model.encode(claim)
+    max_sim = 0.0
+
+    for article in results:
+        text = article["title"] + " - " + article["url"]
+        article_embedding = model.encode(text)
+        sim = util.cos_sim(claim_embedding, article_embedding).item()
+        max_sim = max(max_sim, sim)
+
+    result = "Real" if max_sim > 0.7 else "Fake"
+
+    return {
+        "claim": claim,
+        "result": result,
+        "similarity_score": round(max_sim, 2),
+        "sources": results
+    }
 
 if __name__ == "__main__":
     import uvicorn
