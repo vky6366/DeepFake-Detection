@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.rememberAsyncImagePainter
 import com.example.deepshield.presentation.Navigation.MyApp
+import com.example.deepshield.presentation.Screens.ChatBotMainScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.SelectDeepFakeTypeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
             DeepShieldTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        MyApp()
+                       // MyApp()
+                        ChatBotMainScreen()
                     }
 
                 }

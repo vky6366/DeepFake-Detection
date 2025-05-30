@@ -1,9 +1,6 @@
 package com.example.deepshield.presentation.Screens
 
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -118,7 +115,29 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    contentAlignment = Alignment.Center,  // Centers the text inside the animation
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .height(50.dp)
+                        .clickable {
 
+                        }
+                ) {
+                    LottieAnimation(
+                        composition = lottiecomposition,
+                        progress = { progress2 },
+                        modifier = Modifier.fillMaxWidth()  // Makes animation fill the Box
+                    )
+
+                    Text(
+                        text = "Fake News Check",  // Your desired text
+                        color = Color.White,  // Adjust color for visibility
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
             }
 
