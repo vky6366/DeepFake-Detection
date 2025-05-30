@@ -20,7 +20,7 @@ from typing import List, Optional
 import socket
 from serpapi.google_search import GoogleSearch
 from sentence_transformers import SentenceTransformer, util
-from pydantic import BaseModel, Literal
+from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
 import os
@@ -55,7 +55,7 @@ WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 UPLOAD_audio_FOLDER = os.path.join(BASE_DIR, 'audio_uploads')
 image_model = os.path.join(BASE_DIR, 'Model',"deepfake_detector_b0.pth")
 UPLOAD_IMAGE_FOLDER = "uploaded_images"
-
+audio_model = os.path.join(BASE_DIR, 'Model',"deepfake_audio_model.pth")
 os.makedirs(UPLOAD_IMAGE_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
@@ -67,10 +67,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_b4 = DeepfakeDetector().to(device)
 model_b5 = DeepfakeDetectorb5().to(device)
-
+model_audio = AudioCNN().to(device)
+model_audio.load_state_dict(torch.load(audio_model, map_location=device))
 model_image = models.efficientnet_b0(pretrained=False)
 model_image.classifier[1] = nn.Linear(model_image.classifier[1].in_features, 2)
-model_image.load_state_dict(torch.load(image_model, map_location=torch.device("cpu")))
+model_image.load_state_dict(torch.load(image_model, map_location="cpu", weights_only=True))
 
 gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])
 
