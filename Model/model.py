@@ -41,3 +41,15 @@ class DeepfakeDetector(nn.Module):
     def forward(self, x):
         features = self.base_model(x)
         return self.classifier(features)
+
+class AudioCNN(torch.nn.Module):
+    def __init__(self):
+        super(AudioCNN, self).__init__()
+        self.conv1 = torch.nn.Conv2d(1, 32, 3, padding=1)
+        self.pool = torch.nn.MaxPool2d(2, 2)
+        self.fc1 = torch.nn.Linear(32 * 32 * 4, 2)  # Example size; change based on model
+
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))
+        x = x.view(x.size(0), -1)
+        return self.fc1(x)

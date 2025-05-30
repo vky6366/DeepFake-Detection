@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
-from Model.model import DeepfakeDetector, DeepfakeDetectorb5
+from Model.model import DeepfakeDetector, DeepfakeDetectorb5, AudioCNN
 from Utils.preprocess import extract_frames, zoom_into_face  
 from PIL import Image
 import io
@@ -20,10 +20,12 @@ from typing import List, Optional
 import socket
 from serpapi.google_search import GoogleSearch
 from sentence_transformers import SentenceTransformer, util
-from pydantic import BaseModel
+from pydantic import BaseModel, Literal
 from typing import List
 from dotenv import load_dotenv
 import os
+import tempfile
+import librosa
 
 load_dotenv()
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
@@ -59,7 +61,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_b4 = DeepfakeDetector().to(device)
 model_b5 = DeepfakeDetectorb5().to(device)
-
+model_audio = AudioCNN().to(device)
+model_audio.load_state_dict(torch.load("deepfake_audio_model.pth", map_location=device))
 gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])
 
 try:
@@ -309,24 +312,26 @@ async def get_facial_analysis():
 os.makedirs(UPLOAD_audio_FOLDER, exist_ok=True)
 
 @app.post("/upload_audio")
-async def upload_audio(file: UploadFile = File(...)):
-    try:
-        
-        file_path = os.path.join(UPLOAD_audio_FOLDER, file.filename)
+async def predict(file: UploadFile = File(...)):
+    # Save uploaded file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp:
+        temp.write(await file.read())
+        temp_path = temp.name
 
-        # Debug print to make sure path is correct
-        print(f"Saving file to: {file_path}")
+    # Preprocess audio
+    y, sr = librosa.load(temp_path, sr=16000, mono=True)
+    y_trimmed, _ = librosa.effects.trim(y)
+    y_fixed = librosa.util.fix_length(y_trimmed, size=16000 * 5)
+    mfcc = librosa.feature.mfcc(y=y_fixed, sr=sr, n_mfcc=13)
+    mfcc_tensor = torch.tensor(mfcc, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
 
-        # Read and write the file
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
+    # Inference
+    with torch.no_grad():
+        output = model_audio(mfcc_tensor)
+        predicted_class = torch.argmax(output, dim=1).item()
+        label = "Real" if predicted_class == 0 else "Fake"
 
-        return JSONResponse(content={"message": "Prediction Complete!",
-        "prediction": 'FAKE',
-        "score": 20,"status_code":200}, status_code=200)
-
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    return {"prediction": label}
 
 #image route
 UPLOAD_IMAGE_FOLDER = "uploaded_images"
