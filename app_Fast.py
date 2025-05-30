@@ -36,12 +36,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-<<<<<<< HEAD
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 UPLOAD_audio_FOLDER = os.path.join(BASE_DIR, 'audio_uploads')
-=======
-WEBSITE_FOLDER = os.path.join(BASE_DIR, 'web')
->>>>>>> 86f439593c80c4892df022cdad02c4e0ec4f90fd
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
