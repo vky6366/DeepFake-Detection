@@ -30,7 +30,7 @@ class SongRepoImpl @Inject constructor(private val context: Context): SongReposi
         val selection = "${MediaStore.Audio.Media.IS_MUSIC}!=0"
         emit(ResultState.Loading)
         try {
-            val cursor = contentResolver.query(uri,projection,selection,null,null)
+            val cursor = contentResolver.query(uri,projection,null,null,null)
             cursor?.use {cursorelement->
                 while (cursorelement.moveToNext()){
                     val id = cursorelement.getString(0)
