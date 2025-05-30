@@ -12,6 +12,7 @@ target_sr = 16000
 duration = 5
 n_mfcc = 13
 output_base = "processed_mfcc"
+print("Current working directory:", os.getcwd())
 
 def preprocess_and_extract_mfcc(file_path):
     y, sr = librosa.load(file_path, sr=target_sr, mono=True)
@@ -34,6 +35,6 @@ def process_folder(input_folder, label):
             print(f"Error processing {fname}: {e}")
 
 # Change this to match your directory
-base_dir = r"D:\videos\for-norm\training"
-process_folder(os.path.join(base_dir, "real"), "real")
-process_folder(os.path.join(base_dir, "fake"), "fake")
+base_dir = r"D:\audio processing\archive\Dataset"
+process_folder(os.path.join(base_dir, "Real"), "Real")
+process_folder(os.path.join(base_dir, "Fake"), "Fake")
