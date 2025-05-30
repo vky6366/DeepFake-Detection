@@ -359,6 +359,7 @@ def fact_check(claim: str = Query(..., description="The news claim to verify")):
         return {
             "claim": claim,
             "result": "Fake",
+            "similarity_score": 00.0,
             "sources": []
         }
 

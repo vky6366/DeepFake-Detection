@@ -5,6 +5,7 @@ import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
 import com.example.deepshield.data.UseCases.GetHeatMapUseCase
+import com.example.deepshield.data.UseCases.NewsPredictionUseCase
 import com.example.deepshield.data.UseCases.UploadAudioToServerUseCase
 import com.example.deepshield.data.UseCases.UploadVideoToServerUseCase
 import com.example.deepshield.data.UseCases.UseCaseHelper.UseCaseHelperClass
@@ -46,7 +47,8 @@ object DiObject {
             getHeatMapFromServerUseCase = GetHeatMapUseCase(repository = provideRepository()),
             uploadVideoToDeepFakeServerUseCase = UploadVideoToServerUseCase(repository = provideRepository()),
             getAllSongUseCase=getAllSongUseCaseObj(songRepository = providesongRepoObj(context = context)),
-            uploadAudioToServerUseCase = UploadAudioToServerUseCase(repository = provideRepository())
+            uploadAudioToServerUseCase = UploadAudioToServerUseCase(repository = provideRepository()),
+            newsPredictionUseCase = NewsPredictionUseCase(repository = provideRepository())
         )
     }
     @Provides

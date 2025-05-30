@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.net.toUri
+import io.ktor.client.request.*
+import io.ktor.http.*
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
 import com.example.deepshield.data.Response.AudioResponse
@@ -11,6 +13,7 @@ import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.data.Response.GradCamResponse
 import com.example.deepshield.data.Response.HeatMapResponse
+import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
 import io.ktor.client.call.body
@@ -21,8 +24,10 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.appendPathSegments
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -149,6 +154,30 @@ override suspend fun uploadAudioToDeepFakeServer(
         inputStream.close()
     }
 }
+
+    override suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>> =flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
+                parameter("claim",claim)
+            }
+//            val response: HttpResponse = KtorClient.client.get {
+//                url {
+//                    takeFrom(Constants.BASE_URL) // e.g., "http://10.0.2.2:5000"
+//                    appendPathSegments(Constants.NEWS_ROUTE) // e.g., "fact-check"
+//                    parameters.append("claim", claim) // ?claim=something
+//                }
+//            }
+
+            val apiResponse: NewResponse = response.body()
+            Log.d("PREDICTION", apiResponse.toString())
+            emit(ApiResult.Success(apiResponse))
+        }catch (e:Exception){
+            emit(ApiResult.Error(e.message.toString()))
+        }
+
+    }
+
 
 
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import com.example.deepshield.data.Response.AudioResponse
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GradCamResponse
+import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.data.Song.Song
 
 sealed class ApiResult<out T> {
@@ -49,5 +50,11 @@ data class GetAllSongState(
 data class AudioResponseState(
     val isLoading: Boolean = false,
     val data: AudioResponse? = null,
+    val error: String = ""
+)
+
+data class NewsPredictionState(
+    val isLoading: Boolean = false,
+    val data: NewResponse? = null,
     val error: String = ""
 )
