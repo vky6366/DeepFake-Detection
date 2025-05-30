@@ -5,11 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deepfake Detector</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #E3F2FD, #BBDEFB);}
-        .card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);}
-        .upload-box { border: 2px dashed #0D47A1;}
+        .gradient-bg {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-box {
+            border: 2px dashed #0D47A1;
+        }
     </style>
 </head>
 
@@ -18,7 +29,7 @@
         DEEPSHIELD
     </header>
 
-    <main class="container mx-auto px-2 py-6 flex flex-row gap-8 w-full">
+    <main class="container mx-auto px-2 py-6 flex flex-row gap-8 w-full flex-wrap">
         <!-- video section -->
         <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-blue-500">
             <section class="card p-8">
@@ -27,7 +38,8 @@
                     <label for="videoInput"
                         class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
                         <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
-                        <span id="videoFileName" class="text-gray-700 font-medium">Drop your video here or click to browse</span>
+                        <span id="videoFileName" class="text-gray-700 font-medium">Drop your video here or click to
+                            browse</span>
                     </label>
                     <button type="submit"
                         class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
@@ -58,6 +70,7 @@
                 </div>
             </section>
         </section>
+
         <!-- audio section -->
         <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
             <section class="card p-8">
@@ -66,7 +79,8 @@
                     <label for="audioInput"
                         class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
                         <input type="file" id="audioInput" name="audio" accept="audio/*" required class="hidden">
-                        <span id="audioFileName" class="text-gray-700 font-medium">Drop your Audio here or click to browse</span>
+                        <span id="audioFileName" class="text-gray-700 font-medium">Drop your Audio here or click to
+                            browse</span>
                     </label>
                     <button type="submit"
                         class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
@@ -89,157 +103,310 @@
                 </div>
             </section>
         </section>
+
+        <!-- text section -->
+        <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
+            <section class="card p-8">
+                <!-- form for uploading text -->
+                <form id="uploadForm" class="flex flex-col gap-6 items-center mt-6">
+                    <label for="textInput" class="w-full">
+                        <textarea id="textInput" name="text" rows="8" placeholder="Write your text or Paste your text here"
+                            required
+                            class="w-full p-4 rounded-lg border border-gray-300 text-gray-800 resize-y bg-blue-100"></textarea>
+                    </label>
+                    <!-- button for submitting form -->
+                    <button type="submit"
+                        class="bg-blue-900 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300">
+                        Analyze Text
+                    </button>
+                </form>
+            </section>
+            <h2 class="text-3xl font-semibold text-center text-blue-900">Enter a Text</h2>
+
+            <div id="audioLoading" class="mt-6 text-center hidden">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                        <span class="text-[#0D47A1] font-medium">Processing audio... Please wait.</span>
+                    </div>
+                </div>
+
+            <!-- Results Section -->
+            <section id="results" class="card p-8 hidden bg-white rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-center text-blue-900">Analysis Results</h2>
+                <div class="text-center p-4 bg-blue-100 rounded-lg mt-4">
+                    <p class="text-2xl text-blue-900">
+                        <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
+                    </p>
+                    <div class="mt-2 text-lg text-blue-900" id="similarity"></div>
+                    <div class="mt-2 text-base text-blue-900" id="claim"></div>
+                </div>
+                <div class="card p-8">
+                    <div>
+                        <ul id="source-list" class="mt-8 list-disc list-inside space-y-2"></ul>
+                    </div>
+                </div>
+            </section>
+        </section>
     </main>
     <!-- main content ends -->
 
     <script>
-    // VIDEO SECTION JS
-    document.getElementById('videoInput').addEventListener('change', function () {
-        const file = this.files[0];
-        if (file) {
-            if (!file.type.startsWith('video/')) {
-                alert('Please upload a valid video file.');
-                this.value = '';
+        // VIDEO SECTION JS
+        document.getElementById('videoInput').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                if (!file.type.startsWith('video/')) {
+                    alert('Please upload a valid video file.');
+                    this.value = '';
+                    return;
+                }
+                document.getElementById('videoFileName').textContent = file.name;
+            } else {
+                document.getElementById('videoFileName').textContent = "Drop your video here or click to browse";
+            }
+        });
+
+        document.getElementById('videoUploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('videoInput');
+            if (fileInput.files.length === 0) {
+                alert('Please select a video before uploading.');
                 return;
             }
-            document.getElementById('videoFileName').textContent = file.name;
-        } else {
-            document.getElementById('videoFileName').textContent = "Drop your video here or click to browse";
+
+            try {
+                document.getElementById('videoLoading').classList.remove('hidden');
+                document.getElementById('videoResults').classList.add('hidden');
+                document.getElementById('heatmapSection').classList.add('hidden');
+                document.getElementById('gradcamImg').classList.add('hidden');
+
+                const formData = new FormData();
+                formData.append('video', fileInput.files[0]);
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const data = await response.json();
+                document.getElementById('videoPrediction').textContent = `${data.prediction}`;
+                document.getElementById('videoResults').classList.remove('hidden');
+
+                // Always call fetchVisual with prediction value
+                await fetchVisual(data.prediction);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing the video. Please try again.');
+            } finally {
+                document.getElementById('videoLoading').classList.add('hidden');
+            }
+        });
+
+        async function fetchVisual(prediction) {
+            const endpoint = (prediction.toLowerCase() === 'fake') ? '/gradcam' : '/frame';
+            try {
+                const response = await fetch(`${endpoint}?timestamp=${new Date().getTime()}`);
+                if (!response.ok) {
+                    console.warn(`Non-OK response from ${endpoint} endpoint:`, response.status);
+                    return;
+                }
+
+                const data = await response.json();
+                const imageBytes = data.heatmap_bytes || data.frame_bytes;
+
+                if (!imageBytes || imageBytes.length === 0) {
+                    console.warn('Empty image data received');
+                    return;
+                }
+
+                const blob = new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" });
+                const gradcamImg = document.getElementById('gradcamImg');
+                if (!gradcamImg) {
+                    console.warn('gradcamImg element not found');
+                    return;
+                }
+
+                if (gradcamImg.src) URL.revokeObjectURL(gradcamImg.src);
+                gradcamImg.src = URL.createObjectURL(blob);
+                gradcamImg.classList.remove('hidden');
+                document.getElementById('heatmapSection').classList.remove('hidden');
+                console.log(`Visual (${endpoint}) displayed successfully`);
+
+            } catch (error) {
+                console.warn(`Visual fetch warning (${endpoint}):`, error);
+            }
         }
-    });
 
-    document.getElementById('videoUploadForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
+        // AUDIO SECTION JS
+        document.getElementById('audioInput').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                if (!file.type.startsWith('audio/')) {
+                    alert('Please upload a valid audio file.');
+                    this.value = '';
+                    return;
+                }
+                document.getElementById('audioFileName').textContent = file.name;
+            } else {
+                document.getElementById('audioFileName').textContent = "Drop your Audio here or click to browse";
+            }
+        });
 
-        const fileInput = document.getElementById('videoInput');
-        if (fileInput.files.length === 0) {
-            alert('Please select a video before uploading.');
-            return;
-        }
+        document.getElementById('audioUploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const audioInput = document.getElementById('audioInput');
+            const fileNameSpan = document.getElementById('audioFileName');
+            const loadingDiv = document.getElementById('audioLoading');
+            const resultsSection = document.getElementById('audioResults');
+            const predictionSpan = document.getElementById('audioPrediction');
 
-        try {
-            document.getElementById('videoLoading').classList.remove('hidden');
-            document.getElementById('videoResults').classList.add('hidden');
-            document.getElementById('heatmapSection').classList.add('hidden');
-            document.getElementById('gradcamImg').classList.add('hidden');
+            if (!audioInput.files.length) {
+                alert("Please select an audio file.");
+                return;
+            }
+
+            loadingDiv.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
 
             const formData = new FormData();
-            formData.append('video', fileInput.files[0]);
+            formData.append('file', audioInput.files[0]);
 
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
+            try {
+                const response = await fetch('/upload_audio', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
 
-            const data = await response.json();
-            document.getElementById('videoPrediction').textContent = `${data.prediction}`;
-            document.getElementById('videoResults').classList.remove('hidden');
+                loadingDiv.classList.add('hidden');
 
-            // Always call fetchVisual with prediction value
-            await fetchVisual(data.prediction);
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error processing the video. Please try again.');
-        } finally {
-            document.getElementById('videoLoading').classList.add('hidden');
-        }
-    });
-
-    async function fetchVisual(prediction) {
-        const endpoint = (prediction.toLowerCase() === 'fake') ? '/gradcam' : '/frame';
-        try {
-            const response = await fetch(`${endpoint}?timestamp=${new Date().getTime()}`);
-            if (!response.ok) {
-                console.warn(`Non-OK response from ${endpoint} endpoint:`, response.status);
-                return;
-            }
-
-            const data = await response.json();
-            const imageBytes = data.heatmap_bytes || data.frame_bytes;
-
-            if (!imageBytes || imageBytes.length === 0) {
-                console.warn('Empty image data received');
-                return;
-            }
-
-            const blob = new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" });
-            const gradcamImg = document.getElementById('gradcamImg');
-            if (!gradcamImg) {
-                console.warn('gradcamImg element not found');
-                return;
-            }
-
-            if (gradcamImg.src) URL.revokeObjectURL(gradcamImg.src);
-            gradcamImg.src = URL.createObjectURL(blob);
-            gradcamImg.classList.remove('hidden');
-            document.getElementById('heatmapSection').classList.remove('hidden');
-            console.log(`Visual (${endpoint}) displayed successfully`);
-
-        } catch (error) {
-            console.warn(`Visual fetch warning (${endpoint}):`, error);
-        }
-    }
-
-    // AUDIO SECTION JS
-    document.getElementById('audioInput').addEventListener('change', function () {
-        const file = this.files[0];
-        if (file) {
-            if (!file.type.startsWith('audio/')) {
-                alert('Please upload a valid audio file.');
-                this.value = '';
-                return;
-            }
-            document.getElementById('audioFileName').textContent = file.name;
-        } else {
-            document.getElementById('audioFileName').textContent = "Drop your Audio here or click to browse";
-        }
-    });
-
-    document.getElementById('audioUploadForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const audioInput = document.getElementById('audioInput');
-        const fileNameSpan = document.getElementById('audioFileName');
-        const loadingDiv = document.getElementById('audioLoading');
-        const resultsSection = document.getElementById('audioResults');
-        const predictionSpan = document.getElementById('audioPrediction');
-
-        if (!audioInput.files.length) {
-            alert("Please select an audio file.");
-            return;
-        }
-
-        loadingDiv.classList.remove('hidden');
-        resultsSection.classList.add('hidden');
-
-        const formData = new FormData();
-        formData.append('file', audioInput.files[0]);
-
-        try {
-            const response = await fetch('/upload_audio', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            loadingDiv.classList.add('hidden');
-
-            if (response.ok && data && data.prediction) {
-                predictionSpan.textContent = data.prediction + " (Score: " + data.score + ")";
-                resultsSection.classList.remove('hidden');
-            } else {
-                predictionSpan.textContent = "Error: " + (data.error || "Unknown error");
+                if (response.ok && data && data.prediction) {
+                    predictionSpan.textContent = data.prediction + " (Score: " + data.score + ")";
+                    resultsSection.classList.remove('hidden');
+                } else {
+                    predictionSpan.textContent = "Error: " + (data.error || "Unknown error");
+                    resultsSection.classList.remove('hidden');
+                }
+            } catch (err) {
+                loadingDiv.classList.add('hidden');
+                predictionSpan.textContent = "Error: " + err.message;
                 resultsSection.classList.remove('hidden');
             }
-        } catch (err) {
-            loadingDiv.classList.add('hidden');
-            predictionSpan.textContent = "Error: " + err.message;
-            resultsSection.classList.remove('hidden');
+        });
+
+        // TEXT SECTION JS
+        async function analyzeTextAPI(text) {
+            // Simulate a network delay and return static data
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        "claim": "The nasa has found alien",
+                        "result": "Fake",
+                        "similarity_score": 0.61,
+                        "sources": [
+                            {
+                                "title": "Scientists find promising hints of life on distant planet K2-18b",
+                                "url": "https://www.bbc.com/news/articles/c39jj9vkr34o"
+                            },
+                            {
+                                "title": "Portal to alien life? NASA finds mysterious 300-foot hole on Mars",
+                                "url": "https://timesofindia.indiatimes.com/etimes/trending/portal-to-alien-life-nasa-finds-mysterious-300-foot-hole-on-mars/articleshow/120391362.cms"
+                            },
+                            {
+                                "title": "Scientists claim to have found evidence of alien life. But ‘biosignatures’ might hide more than they reveal",
+                                "url": "https://theconversation.com/scientists-claim-to-have-found-evidence-of-alien-life-but-biosignatures-might-hide-more-than-they-reveal-254801"
+                            },
+                            {
+                                "title": "'IIT grad may have found alien life': Meet Nikku Madhusudhan, the scientist on NASA's speed dial",
+                                "url": "https://www.businesstoday.in/visualstories/news/iit-grad-may-have-found-alien-life-meet-nikku-madhusudhan-the-scientist-on-nasas-speed-dial-226832-19-04-2025"
+                            },
+                            {
+                                "title": "Possible signs of alien life found on nearby exoplanet, study reports",
+                                "url": "https://www.space.com/the-universe/exoplanets/possible-signs-of-alien-life-found-on-nearby-exoplanet-study-reports"
+                            },
+                            {
+                                "title": "Bengal NASA Scientist Reveals Facts On Sunita Williams, Alien Life & Myriad Mysteries Of Space",
+                                "url": "https://www.etvbharat.com/en/!state/nasa-scientist-from-west-bengal-reveals-facts-on-sunita-williams-alien-life-and-myriad-mysteries-of-space-enn25030200950"
+                            },
+                            {
+                                "title": "NASA Has No Comment on New Signs of Alien Life",
+                                "url": "https://futurism.com/nasa-sign-alien-life-k2-18b"
+                            },
+                            {
+                                "title": "NASA says it has discovered DNA ingredients on an asteroid, substantiating the fact that alien life existe",
+                                "url": "https://m.economictimes.com/news/international/us/nasa-says-it-has-discovered-dna-ingredients-on-an-asteroid-substantiating-the-fact-that-alien-life-existed/articleshow/117793742.cms"
+                            },
+                            {
+                                "title": "NASA Detects Strongest Evidence of Possible Alien Life on Exoplanet K2-18 b with Mysterious Gases",
+                                "url": "https://www.oneindia.com/videos/nasa-detects-strongest-evidence-of-aliens-on-k2-18-b-011-4237138.html"
+                            },
+                            {
+                                "title": "Nasa reveals why we haven't detected any advanced alien civilisation so far",
+                                "url": "https://www.indiatoday.in/science/story/nasa-reveals-why-we-havent-detected-any-advanced-alien-civilisation-so-far-2576963-2024-08-05"
+                            }
+                        ]
+                    });
+                }, 1000);
+            });
         }
-    });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            // Hide previous results & show loading
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            const text = document.getElementById('textInput').value.trim();
+
+            try {
+                // Replace with fetch to real API as needed
+                const analysis = await analyzeTextAPI(text);
+
+                // Set Prediction
+                document.getElementById('prediction').textContent = analysis.result || '--';
+                // Set Similarity Score
+                document.getElementById('similarity').textContent =
+                    (typeof analysis.similarity_score === "number")
+                        ? `Similarity Score: ${(analysis.similarity_score * 100).toFixed(1)}%`
+                        : '';
+                // Set Claim
+                document.getElementById('claim').textContent = analysis.claim ? `Claim: ${analysis.claim}` : '';
+
+                // Set Sources
+                const sourceList = document.getElementById('source-list');
+                sourceList.innerHTML = '';
+                if (Array.isArray(analysis.sources)) {
+                    analysis.sources.forEach(src => {
+                        const li = document.createElement("li");
+                        // Title as plain text
+                        const titleSpan = document.createElement("span");
+                        titleSpan.textContent = src.title + " ";
+                        li.appendChild(titleSpan);
+                        // URL as clickable link
+                        const a = document.createElement("a");
+                        a.href = src.url;
+                        a.textContent = src.url;
+                        a.target = "_blank";
+                        a.rel = "noopener noreferrer";
+                        a.className = "text-blue-800 underline hover:text-blue-600 break-all";
+                        li.appendChild(a);
+                        sourceList.appendChild(li);
+                    });
+                }
+
+                // Show Results, Hide Loading
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+            } catch (err) {
+                document.getElementById('loading').classList.add('hidden');
+                alert("An error occurred while analyzing the text. Please try again.");
+            }
+        });
     </script>
 </body>
 </html>
