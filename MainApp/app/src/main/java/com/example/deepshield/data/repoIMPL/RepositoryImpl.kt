@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.net.toUri
+import io.ktor.client.request.*
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
 import com.example.deepshield.data.Response.AudioResponse
@@ -11,6 +12,8 @@ import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.data.Response.GradCamResponse
 import com.example.deepshield.data.Response.HeatMapResponse
+import com.example.deepshield.data.Response.ImageResponse
+import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
 import io.ktor.client.call.body
@@ -18,7 +21,6 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
@@ -149,6 +151,64 @@ override suspend fun uploadAudioToDeepFakeServer(
         inputStream.close()
     }
 }
+
+    override suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>> =flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
+                parameter("claim",claim)
+            }
+//            val response: HttpResponse = KtorClient.client.get {
+//                url {
+//                    takeFrom(Constants.BASE_URL) // e.g., "http://10.0.2.2:5000"
+//                    appendPathSegments(Constants.NEWS_ROUTE) // e.g., "fact-check"
+//                    parameters.append("claim", claim) // ?claim=something
+//                }
+//            }
+
+            val apiResponse: NewResponse = response.body()
+            Log.d("PREDICTION", apiResponse.toString())
+            emit(ApiResult.Success(apiResponse))
+        }catch (e:Exception){
+            emit(ApiResult.Error(e.message.toString()))
+        }
+
+    }
+
+
+
+    override suspend fun imagePrediction(context: Context,imageUri: String): Flow<ApiResult<ImageResponse>> =flow{
+        emit(ApiResult.Loading)
+
+        val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri.toUri())
+        if (inputStream == null) {
+            emit(ApiResult.Error("Failed to open image file"))
+            return@flow
+        }
+
+        try {
+            val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+                url = "${Constants.BASE_URL}${Constants.IMAGE_ROUTE}",
+                formData = formData {
+                    append(
+                        "image",
+                        inputStream.readBytes(),
+                        Headers.build {
+                            append(HttpHeaders.ContentType, "image/jpeg") // or image/png if needed
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"image.jpg\"")
+                        }
+                    )
+                }
+            )
+
+            val apiResponse: ImageResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        } finally {
+            inputStream.close()
+        }
+    }
 
 
 }

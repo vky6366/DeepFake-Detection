@@ -36,3 +36,6 @@ data class AUDIOPROCESSINGSCREEN(val audioUri: String,val audioTitle: String)
 
 @Serializable
 object NEWSCHATSCREEN
+
+@Serializable
+object IMAGESELECTIONSCREEN

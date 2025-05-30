@@ -71,22 +71,7 @@ fun VideoUploadingScreenBin(viewModel: MyViewModel = hiltViewModel(), videoUri: 
             modifier = Modifier.fillMaxWidth(0.8f).height(450.dp)
         )
         Spacer(modifier = Modifier.height(32.dp))
-//        Button(
-//            onClick = {
-//           FancyToast.makeText(context,"Video Upload",FancyToast.LENGTH_SHORT,FancyToast.SUCCESS,false).show()
-//           //  viewModel.uploadVideoToDeepFakeServer(context, videoUri)
-//
-//                navController.navigate(VIDEOPROCESSINGSCREEN(imageUri = imageUri, videoUri = videoUri))
-//
-//
-//            }, modifier = Modifier
-//                .fillMaxWidth(0.85f)
-//                .height(50.dp), colors = ButtonDefaults.buttonColors(
-//                containerColor = colorResource(id = R.color.themecolour) // Custom Hex Color
-//            )
-//        ) {
-//            Text("Upload Video", color = colorResource(id = R.color.black))
-//        }
+
         Box(
             contentAlignment = Alignment.Center,  // Centers the text inside the animation
             modifier = Modifier

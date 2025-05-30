@@ -12,6 +12,7 @@ import com.example.deepshield.presentation.Screens.AudioOutputProcessingScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HeatCamScreen
+import com.example.deepshield.presentation.Screens.ImageSelectorScreen
 import com.example.deepshield.presentation.Screens.NewsChatScreen
 import com.example.deepshield.presentation.Screens.SelectDeepFakeTypeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
@@ -51,7 +52,10 @@ fun MyApp() {
             AudioOutputProcessingScreen(song = data.audioUri, songTitle = data.audioTitle)
         }
         composable<NEWSCHATSCREEN> {
-            NewsChatScreen()
+            NewsChatScreen(navController = navController)
+        }
+        composable<IMAGESELECTIONSCREEN> {
+            ImageSelectorScreen(navController = navController)
         }
     }
 

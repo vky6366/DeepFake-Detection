@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from werkzeug.utils import secure_filename
 from torchvision import transforms
 from tqdm import tqdm
-from Model.model import DeepfakeDetector, DeepfakeDetectorb5
+from Model.model import DeepfakeDetector, DeepfakeDetectorb5, AudioCNN
 from Utils.preprocess import extract_frames, zoom_into_face  
 from PIL import Image
 import io
@@ -24,6 +24,8 @@ from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
 import os
+import tempfile
+import librosa
 from torchvision import models
 import torch.nn as nn
 
@@ -53,7 +55,7 @@ WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 UPLOAD_audio_FOLDER = os.path.join(BASE_DIR, 'audio_uploads')
 image_model = os.path.join(BASE_DIR, 'Model',"deepfake_detector_b0.pth")
 UPLOAD_IMAGE_FOLDER = "uploaded_images"
-
+audio_model = os.path.join(BASE_DIR, 'Model',"deepfake_audio_model.pth")
 os.makedirs(UPLOAD_IMAGE_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
@@ -65,10 +67,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_b4 = DeepfakeDetector().to(device)
 model_b5 = DeepfakeDetectorb5().to(device)
-
+model_audio = AudioCNN().to(device)
+model_audio.load_state_dict(torch.load(audio_model, map_location=device))
 model_image = models.efficientnet_b0(pretrained=False)
 model_image.classifier[1] = nn.Linear(model_image.classifier[1].in_features, 2)
-model_image.load_state_dict(torch.load(image_model, map_location=torch.device("cpu")))
+model_image.load_state_dict(torch.load(image_model, map_location="cpu", weights_only=True))
 
 gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])
 
@@ -319,24 +322,26 @@ async def get_facial_analysis():
 os.makedirs(UPLOAD_audio_FOLDER, exist_ok=True)
 
 @app.post("/upload_audio")
-async def upload_audio(file: UploadFile = File(...)):
-    try:
-        
-        file_path = os.path.join(UPLOAD_audio_FOLDER, file.filename)
+async def predict(file: UploadFile = File(...)):
+    # Save uploaded file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp:
+        temp.write(await file.read())
+        temp_path = temp.name
 
-        # Debug print to make sure path is correct
-        print(f"Saving file to: {file_path}")
+    # Preprocess audio
+    y, sr = librosa.load(temp_path, sr=16000, mono=True)
+    y_trimmed, _ = librosa.effects.trim(y)
+    y_fixed = librosa.util.fix_length(y_trimmed, size=16000 * 5)
+    mfcc = librosa.feature.mfcc(y=y_fixed, sr=sr, n_mfcc=13)
+    mfcc_tensor = torch.tensor(mfcc, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
 
-        # Read and write the file
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
+    # Inference
+    with torch.no_grad():
+        output = model_audio(mfcc_tensor)
+        predicted_class = torch.argmax(output, dim=1).item()
+        label = "Real" if predicted_class == 0 else "Fake"
 
-        return JSONResponse(content={"message": "Prediction Complete!",
-        "prediction": 'FAKE',
-        "score": 20,"status_code":200}, status_code=200)
-
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    return {"prediction": label}
 
 @app.get("/fact-check", response_model=ClaimResponse)
 def fact_check(claim: str = Query(..., description="The news claim to verify")):
@@ -346,6 +351,7 @@ def fact_check(claim: str = Query(..., description="The news claim to verify")):
         return {
             "claim": claim,
             "result": "Fake",
+            "similarity_score": 00.0,
             "sources": []
         }
 
