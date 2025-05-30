@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.deepshield.data.UseCases.UseCaseHelper.UseCaseHelperClass
 import com.example.deepshield.data.repoIMPL.RepositoryImpl
 import com.example.deepshield.domain.StateHandling.ApiResult
+import com.example.deepshield.domain.StateHandling.AudioResponseState
 import com.example.deepshield.domain.StateHandling.DeepFakeVideoResponseState
 import com.example.deepshield.domain.StateHandling.FrameResponseState
 import com.example.deepshield.domain.StateHandling.GradCamResponseState
@@ -22,6 +23,8 @@ import javax.inject.Inject
 class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):ViewModel() {
     private val _uploadDeepFakeVideoState = MutableStateFlow(DeepFakeVideoResponseState())
     val uploadDeepFakeVideoState = _uploadDeepFakeVideoState.asStateFlow()
+    private val _uploadAudioToServerState = MutableStateFlow(AudioResponseState())
+    val uploadAudioToServerState = _uploadAudioToServerState.asStateFlow()
 
     // ✅ State for fetching a frame
     private val _frameState = MutableStateFlow(FrameResponseState())
@@ -35,7 +38,10 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
     fun uploadVideoToDeepFakeServer(context: Context, videoUri: String) {
         viewModelScope.launch {
-            usecase.uploadVideoToDeepFakeServerUseCase.execute(context = context, videoUrl = videoUri)
+            usecase.uploadVideoToDeepFakeServerUseCase.execute(
+                context = context,
+                videoUrl = videoUri
+            )
                 .collectLatest {
                     when (it) {
                         is ApiResult.Loading -> {
@@ -62,7 +68,7 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
     fun getFrameFromServer() {
         viewModelScope.launch {
-           usecase.getFrameFromServerUseCase.execute().collectLatest { result ->
+            usecase.getFrameFromServerUseCase.execute().collectLatest { result ->
                 when (result) {
                     is ApiResult.Loading -> {
                         _frameState.value = FrameResponseState(isLoading = true)
@@ -84,7 +90,7 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
     fun getHeatMapFromServer() {
         viewModelScope.launch {
-            usecase.getHeatMapFromServerUseCase.execute() .collect { response ->
+            usecase.getHeatMapFromServerUseCase.execute().collect { response ->
                 when (response) {
                     is ApiResult.Loading -> {
                         _getHeatMapFromServerState.value = HeatMapResponseState(isLoading = true)
@@ -97,7 +103,7 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
                     is ApiResult.Success -> {
                         _getHeatMapFromServerState.value =
-                            HeatMapResponseState(isLoading = false,  data = response.data)
+                            HeatMapResponseState(isLoading = false, data = response.data)
                     }
                 }
 
@@ -108,7 +114,7 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
     fun getGradCamResponse() {
         viewModelScope.launch {
-           usecase.getGradCamFromServerUseCase.execute().collectLatest { result ->
+            usecase.getGradCamFromServerUseCase.execute().collectLatest { result ->
                 when (result) {
                     is ApiResult.Loading -> {
                         _getGradCamFromServerState.value = GradCamResponseState(isLoading = true)
@@ -116,7 +122,7 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
 
                     is ApiResult.Success -> {
                         _getGradCamFromServerState.value =
-                            GradCamResponseState(isLoading = false, data =result.data)
+                            GradCamResponseState(isLoading = false, data = result.data)
                     }
 
                     is ApiResult.Error -> {
@@ -129,6 +135,29 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
         }
 
     }
+
+    fun uploadAudioToDeepFakeServer(context: Context, audioUrl: String) {
+        viewModelScope.launch {
+            usecase.uploadAudioToServerUseCase.invoke(context,audioUrl).collectLatest { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        _uploadAudioToServerState.value = AudioResponseState(isLoading = true)
+                    }
+
+                    is ApiResult.Error -> {
+                        _uploadAudioToServerState.value =
+                            AudioResponseState(isLoading = false, error = result.message)
+                    }
+
+                    is ApiResult.Success -> {
+                        _uploadAudioToServerState.value = AudioResponseState(isLoading = false, data = result.data)
+                    }
+                }
+            }
+        }
+    }
+
+
 }
 
 

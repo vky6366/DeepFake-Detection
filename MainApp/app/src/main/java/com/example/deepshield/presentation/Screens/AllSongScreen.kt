@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.deepshield.presentation.Navigation.AUDIOPROCESSINGSCREEN
 import com.example.deepshield.presentation.viewModel.SongViewModel
 import com.example.deepshield.utils.formatDuration
 
@@ -65,7 +66,9 @@ fun AllSongScreen(viewmodel: SongViewModel = hiltViewModel(),navController: NavC
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth() // Make the card take full width
-                                .padding(vertical = 4.dp), // Space between cards
+                                .padding(vertical = 4.dp).clickable{
+                                    navController.navigate(AUDIOPROCESSINGSCREEN(audioUri = song.path))
+                                }, // Space between cards
                             shape = RoundedCornerShape(12.dp), // Rounded corners
                             elevation = CardDefaults.cardElevation(8.dp) // Shadow effect
                         ) {

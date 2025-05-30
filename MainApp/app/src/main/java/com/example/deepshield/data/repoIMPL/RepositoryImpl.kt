@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
+import com.example.deepshield.data.Response.AudioResponse
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.data.Response.GradCamResponse
@@ -17,10 +18,13 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 
 class RepositoryImpl:Repository {
@@ -102,6 +106,49 @@ class RepositoryImpl:Repository {
             emit(ApiResult.Error(e.message.toString()))
         }
     }
+
+override suspend fun uploadAudioToDeepFakeServer(
+    context: Context,
+    audioUri: String // this is a *path*, not a content URI
+): Flow<ApiResult<AudioResponse>> = flow {
+    emit(ApiResult.Loading)
+
+    val file = File(audioUri)
+    val inputStream: InputStream? = if (file.exists()) FileInputStream(file) else null
+
+    if (inputStream == null) {
+        emit(ApiResult.Error("Failed to open audio file from path"))
+        return@flow
+    }
+
+    try {
+        val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+            url = "${Constants.BASE_URL}${Constants.AUDIO_ROUTE}",
+            formData = formData {
+                append(
+                    "file",
+                    inputStream.readBytes(),
+                    Headers.build {
+                        append(HttpHeaders.ContentType, "audio/mpeg")
+                        append(
+                            HttpHeaders.ContentDisposition,
+                            "form-data; name=\"file\"; filename=\"${file.name}\""
+                        )
+                    }
+                )
+            }
+        )
+
+        val apiResponse: AudioResponse = response.body()
+        emit(ApiResult.Success(apiResponse))
+
+    } catch (e: Exception) {
+        Log.e("AUDIO_API_ERROR", e.message ?: "Unknown error", e)
+        emit(ApiResult.Error(e.message ?: "Unknown error"))
+    } finally {
+        inputStream.close()
+    }
+}
 
 
 }

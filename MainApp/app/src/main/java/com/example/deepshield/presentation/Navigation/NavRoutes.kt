@@ -30,3 +30,6 @@ object SELECTDEEPFAKETYPESCREEN
 
 @Serializable
 object ALLSONGSCREEN
+
+@Serializable
+data class AUDIOPROCESSINGSCREEN(val audioUri: String,val audioTitle: String)

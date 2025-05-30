@@ -38,8 +38,8 @@ class MainActivity : ComponentActivity() {
             DeepShieldTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                       // MyApp()
-                        ChatBotMainScreen()
+                       MyApp()
+                       // ChatBotMainScreen()
                     }
 
                 }
