@@ -12,6 +12,7 @@ import com.example.deepshield.domain.StateHandling.DeepFakeVideoResponseState
 import com.example.deepshield.domain.StateHandling.FrameResponseState
 import com.example.deepshield.domain.StateHandling.GradCamResponseState
 import com.example.deepshield.domain.StateHandling.HeatMapResponseState
+import com.example.deepshield.domain.StateHandling.NewsPredictionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,8 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
     val uploadDeepFakeVideoState = _uploadDeepFakeVideoState.asStateFlow()
     private val _uploadAudioToServerState = MutableStateFlow(AudioResponseState())
     val uploadAudioToServerState = _uploadAudioToServerState.asStateFlow()
+    private val _newPredictionState = MutableStateFlow(NewsPredictionState())
+    val newPredictionState = _newPredictionState.asStateFlow()
 
     // ✅ State for fetching a frame
     private val _frameState = MutableStateFlow(FrameResponseState())
@@ -153,6 +156,25 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
                         _uploadAudioToServerState.value = AudioResponseState(isLoading = false, data = result.data)
                     }
                 }
+            }
+        }
+    }
+
+    fun newPrediction(claim: String) {
+        viewModelScope.launch {
+            usecase.newsPredictionUseCase.invoke(claim = claim).collectLatest {result->
+                when(result){
+                    is ApiResult.Loading->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = true)
+                    }
+                    is ApiResult.Error->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = false, error = result.message)
+                    }
+                    is ApiResult.Success->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = false, data = result.data)
+                    }
+                }
+
             }
         }
     }

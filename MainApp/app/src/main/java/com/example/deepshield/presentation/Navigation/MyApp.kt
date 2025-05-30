@@ -51,7 +51,7 @@ fun MyApp() {
             AudioOutputProcessingScreen(song = data.audioUri, songTitle = data.audioTitle)
         }
         composable<NEWSCHATSCREEN> {
-            NewsChatScreen()
+            NewsChatScreen(navController = navController)
         }
     }
 
