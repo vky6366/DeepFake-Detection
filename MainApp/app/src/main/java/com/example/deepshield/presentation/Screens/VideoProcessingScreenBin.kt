@@ -58,6 +58,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
 import com.example.deepshield.presentation.Navigation.HEATMAPSCREEN
+import com.example.deepshield.presentation.Navigation.SELECTDEEPFAKETYPESCREEN
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 import com.example.deepshield.presentation.Utils.AnimatedText
 import com.example.deepshield.presentation.viewModel.MyViewModel
@@ -252,6 +253,38 @@ fun VideoProcessingScreen(
                 // Overlayed Text
                 Text(
                     text = "New Video",  // Your desired text
+                    color = Color.White,  // Adjust color for visibility
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                contentAlignment = Alignment.Center,  // Centers the text inside the animation
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(50.dp)
+                    .clickable {
+                        if(navigationFlag.value){
+                            navController.navigate(SELECTDEEPFAKETYPESCREEN){
+                                popUpTo(0)
+                            }
+                        }else{
+                            FancyToast.makeText(context,"Let background task finish",FancyToast.LENGTH_SHORT,FancyToast.ERROR,false).show()
+                        }
+
+                    }
+            ) {
+                // Lottie Animation
+                LottieAnimation(
+                    composition = lottiecomposition,
+                    progress = { progress2 },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Overlayed Text
+                Text(
+                    text = "Home Screen",  // Your desired text
                     color = Color.White,  // Adjust color for visibility
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
