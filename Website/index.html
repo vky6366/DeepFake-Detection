@@ -39,64 +39,77 @@
     <!-- main content of the website -->
     <main class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl">
 
-        <!-- Upload Section -->
-        <section class="card p-8">
-            <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Video</h2>
 
-            <!-- form for uploading video -->
-            <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
-                <label for="videoInput"
-                    class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
+        <!-- video section -->
+        <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-blue-500">
 
-                    <!-- input field for uploading video -->
-                    <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
-                    <span id="fileName" class="text-gray-700 font-medium">Drop your video here or click to browse</span>
-                </label>
+            <!-- Upload Section -->
+            <section class="card p-8">
+                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Video</h2>
 
-                <!-- button for submitting form -->
-                <button type="submit"
-                    class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
-                    Analyze Video
-                </button>
+                <!-- form for uploading video -->
+                <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
+                    <label for="videoInput"
+                        class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
 
-            </form>
+                        <!-- input field for uploading video -->
+                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
+                        <span id="fileName" class="text-gray-700 font-medium">Drop your video here or click to
+                            browse</span>
+                    </label>
 
-            <!-- processing indicator -->
-            <div id="loading" class="hidden mt-6 text-center">
-                <div class="flex items-center justify-center gap-3">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                    <span class="text-[#0D47A1] font-medium">Processing video... Please wait.</span>
+                    <!-- button for submitting form -->
+                    <button type="submit"
+                        class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+                        Analyze Video
+                    </button>
+
+                </form>
+
+                <!-- processing indicator -->
+                <div id="loading" class="hidden mt-6 text-center">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                        <span class="text-[#0D47A1] font-medium">Processing video... Please wait.</span>
+                    </div>
                 </div>
-            </div>
 
-        </section>
+            </section>
 
-        <!-- Results Section -->
-        <section id="results" class="hidden card p-8">
-            <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
-            <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
-                <p class="text-2xl text-[#0D47A1]">
-                    <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
-                </p>
-            </div>
-        </section>
-
-        <!-- Visual Analysis -->
-        <section class="card p-8">
-            <!-- Heatmap Frame -->
-            <div class="space-y-4 text-center">
-                <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
-                <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
-                    <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
+            <!-- Results Section -->
+            <section id="results" class="hidden card p-8">
+                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+                <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                    <p class="text-2xl text-[#0D47A1]">
+                        <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
+                    </p>
                 </div>
-            </div>
+            </section>
+
+            <!-- Visual Analysis -->
+            <section class="card p-8">
+                <!-- Heatmap Frame -->
+                <div class="space-y-4 text-center">
+                    <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
+                    <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
+                        <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
+                    </div>
+                </div>
+            </section>
+
         </section>
+
+
+
+
+
+
     </main>
     <!-- main content ends -->
 
     <script>
         console.log('Script loaded!');
-    
+
         document.getElementById('videoInput').addEventListener('change', function () {
             const file = this.files[0];
             if (file) {
@@ -110,36 +123,36 @@
                 document.getElementById('fileName').textContent = "Drop your video here or click to browse";
             }
         });
-    
+
         document.getElementById('uploadForm').addEventListener('submit', async function (event) {
             event.preventDefault();
-    
+
             const fileInput = document.getElementById('videoInput');
             if (fileInput.files.length === 0) {
                 alert('Please select a video before uploading.');
                 return;
             }
-    
+
             try {
                 document.getElementById('loading').classList.remove('hidden');
-    
+
                 const formData = new FormData();
                 formData.append('video', fileInput.files[0]);
-    
+
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
-    
+
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    
+
                 const data = await response.json();
                 document.getElementById('prediction').textContent = `${data.prediction}`;
                 document.getElementById('results').classList.remove('hidden');
-    
+
                 // Always call fetchVisual with prediction value
                 await fetchVisual(data.prediction);
-    
+
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error processing the video. Please try again.');
@@ -147,7 +160,7 @@
                 document.getElementById('loading').classList.add('hidden');
             }
         });
-    
+
         async function fetchVisual(prediction) {
             const endpoint = (prediction.toLowerCase() === 'fake') ? '/gradcam' : '/frame';
             try {
@@ -156,33 +169,33 @@
                     console.warn(`Non-OK response from ${endpoint} endpoint:`, response.status);
                     return;
                 }
-    
+
                 const data = await response.json();
                 const imageBytes = data.heatmap_bytes || data.frame_bytes;
-    
+
                 if (!imageBytes || imageBytes.length === 0) {
                     console.warn('Empty image data received');
                     return;
                 }
-    
+
                 const blob = new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" });
                 const gradcamImg = document.getElementById('gradcamImg');
                 if (!gradcamImg) {
                     console.warn('gradcamImg element not found');
                     return;
                 }
-    
+
                 if (gradcamImg.src) URL.revokeObjectURL(gradcamImg.src);
                 gradcamImg.src = URL.createObjectURL(blob);
                 gradcamImg.classList.remove('hidden');
                 console.log(`Visual (${endpoint}) displayed successfully`);
-    
+
             } catch (error) {
                 console.warn(`Visual fetch warning (${endpoint}):`, error);
             }
         }
     </script>
-    
+
 
 </body>
 

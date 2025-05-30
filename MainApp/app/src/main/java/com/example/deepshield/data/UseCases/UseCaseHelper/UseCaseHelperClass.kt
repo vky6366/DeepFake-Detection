@@ -4,6 +4,7 @@ import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
 import com.example.deepshield.data.UseCases.GetHeatMapUseCase
+import com.example.deepshield.data.UseCases.UploadAudioToServerUseCase
 import com.example.deepshield.data.UseCases.UploadVideoToServerUseCase
 
 data class UseCaseHelperClass(
@@ -11,5 +12,6 @@ data class UseCaseHelperClass(
     val getHeatMapFromServerUseCase: GetHeatMapUseCase,
     val getGradCamFromServerUseCase: GetGradCamUseCase,
     val uploadVideoToDeepFakeServerUseCase: UploadVideoToServerUseCase,
-    val getAllSongUseCase: GetAllSongUseCase
+    val getAllSongUseCase: GetAllSongUseCase,
+    val uploadAudioToServerUseCase: UploadAudioToServerUseCase
 )

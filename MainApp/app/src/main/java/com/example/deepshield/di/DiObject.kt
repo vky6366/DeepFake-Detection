@@ -5,6 +5,7 @@ import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
 import com.example.deepshield.data.UseCases.GetHeatMapUseCase
+import com.example.deepshield.data.UseCases.UploadAudioToServerUseCase
 import com.example.deepshield.data.UseCases.UploadVideoToServerUseCase
 import com.example.deepshield.data.UseCases.UseCaseHelper.UseCaseHelperClass
 import com.example.deepshield.data.repoIMPL.RepositoryImpl
@@ -34,13 +35,18 @@ object DiObject {
         return GetAllSongUseCase(repository = songRepository)
     }
     @Provides
+    fun uploadAudioUseCaseObj(): UploadAudioToServerUseCase{
+        return UploadAudioToServerUseCase(repository = provideRepository())
+    }
+    @Provides
     fun useCaseHelperClass(@ApplicationContext context: Context):UseCaseHelperClass{
         return UseCaseHelperClass(
             getGradCamFromServerUseCase = GetGradCamUseCase(repository = provideRepository()),
             getFrameFromServerUseCase = GetFrameFromServerUseCase(repository = provideRepository()),
             getHeatMapFromServerUseCase = GetHeatMapUseCase(repository = provideRepository()),
             uploadVideoToDeepFakeServerUseCase = UploadVideoToServerUseCase(repository = provideRepository()),
-            getAllSongUseCase=getAllSongUseCaseObj(songRepository = providesongRepoObj(context = context))
+            getAllSongUseCase=getAllSongUseCaseObj(songRepository = providesongRepoObj(context = context)),
+            uploadAudioToServerUseCase = UploadAudioToServerUseCase(repository = provideRepository())
         )
     }
     @Provides
