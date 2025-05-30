@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.deepshield.presentation.Screens.AllSongScreen
+import com.example.deepshield.presentation.Screens.AudioOutputProcessingScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HeatCamScreen
-import com.example.deepshield.presentation.Screens.HomeScreen
 import com.example.deepshield.presentation.Screens.SelectDeepFakeTypeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
@@ -45,8 +45,10 @@ fun MyApp() {
         composable<ALLSONGSCREEN> {
             AllSongScreen(navController = navController)
         }
-
-
+        composable<AUDIOPROCESSINGSCREEN> {backstackentry->
+            val data:AUDIOPROCESSINGSCREEN = backstackentry.toRoute()
+            AudioOutputProcessingScreen(song = data.audioUri, songTitle = data.audioTitle)
+        }
     }
 
 }

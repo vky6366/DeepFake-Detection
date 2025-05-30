@@ -1,6 +1,7 @@
 package com.example.deepshield.domain.StateHandling
 
 import android.graphics.Bitmap
+import com.example.deepshield.data.Response.AudioResponse
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GradCamResponse
 import com.example.deepshield.data.Song.Song
@@ -43,4 +44,10 @@ data class GetAllSongState(
     val isLoading: Boolean = false,
     val data: List<Song> = emptyList(),
     val error: String ? = null
+)
+
+data class AudioResponseState(
+    val isLoading: Boolean = false,
+    val data: AudioResponse? = null,
+    val error: String = ""
 )
