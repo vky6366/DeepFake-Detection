@@ -12,6 +12,7 @@ import com.example.deepshield.domain.StateHandling.DeepFakeVideoResponseState
 import com.example.deepshield.domain.StateHandling.FrameResponseState
 import com.example.deepshield.domain.StateHandling.GradCamResponseState
 import com.example.deepshield.domain.StateHandling.HeatMapResponseState
+import com.example.deepshield.domain.StateHandling.ImageResponseState
 import com.example.deepshield.domain.StateHandling.NewsPredictionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,8 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
     val uploadAudioToServerState = _uploadAudioToServerState.asStateFlow()
     private val _newPredictionState = MutableStateFlow(NewsPredictionState())
     val newPredictionState = _newPredictionState.asStateFlow()
+    private val _imagePredictionState = MutableStateFlow(ImageResponseState())
+    val imagePredictionState = _imagePredictionState.asStateFlow()
 
     // ✅ State for fetching a frame
     private val _frameState = MutableStateFlow(FrameResponseState())
@@ -176,6 +179,26 @@ class MyViewModel @Inject constructor(private val usecase:UseCaseHelperClass):Vi
                 }
 
             }
+        }
+    }
+
+    fun imagePrediction(context: Context,imageUri:String){
+        viewModelScope.launch {
+            usecase.imagePredictionUseCase.invoke(context = context,imageUri=imageUri).collectLatest {result->
+                when(result){
+                    is ApiResult.Loading->{
+                        _imagePredictionState.value =ImageResponseState(isLoading = true)
+                    }
+                    is ApiResult.Error->{
+                        _imagePredictionState.value = ImageResponseState(isLoading = false, error = result.message)
+                    }
+                    is ApiResult.Success->{
+                        _imagePredictionState.value = ImageResponseState(isLoading = false, data = result.data)
+                    }
+                }
+
+            }
+
         }
     }
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.deepshield.presentation.Navigation.ALLSONGSCREEN
+import com.example.deepshield.presentation.Navigation.IMAGESELECTIONSCREEN
 import com.example.deepshield.presentation.Navigation.NEWSCHATSCREEN
 import com.example.deepshield.presentation.Navigation.VIDEOSELECTIONSCREEN
 
@@ -99,7 +100,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
                 modifier = Modifier
                     .size(140.dp)
                     .clickable {
-                        println("Image Clicked")
+                       navController.navigate(IMAGESELECTIONSCREEN)
                     },
                 shape = RoundedCornerShape(20.dp),
                 elevation = CardDefaults.cardElevation(6.dp)
