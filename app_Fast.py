@@ -279,14 +279,34 @@ async def upload_audio(file: UploadFile = File(...)):
         with open(file_path, "wb") as f:
             f.write(await file.read())
 
-        return JSONResponse(content={ "message": "Prediction Complete!",
+        return JSONResponse(content={"message": "Prediction Complete!",
         "prediction": 'FAKE',
-        "score": 20}, status_code=200)
+        "score": 20,"status_code":200}, status_code=200)
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+#image route
+UPLOAD_IMAGE_FOLDER = "uploaded_images"
+os.makedirs(UPLOAD_IMAGE_FOLDER, exist_ok=True)
 
+@app.post("/upload_image")
+async def upload_image(image: UploadFile = File(...)):
+    try:
+        file_path = os.path.join(UPLOAD_IMAGE_FOLDER, image.filename)
+
+        # Debug print to make sure path is correct
+        print(f"Saving image to: {file_path}")
+
+        with open(file_path, "wb") as f:
+            f.write(await image.read())
+
+        return JSONResponse(content={"message": "Prediction Complete!",
+        "prediction": 'FAKE',
+        "score": 20,"status_code":200}, status_code=200)
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
 if __name__ == "__main__":
