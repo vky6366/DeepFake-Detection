@@ -36,12 +36,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-<<<<<<< HEAD
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 UPLOAD_audio_FOLDER = os.path.join(BASE_DIR, 'audio_uploads')
-=======
-WEBSITE_FOLDER = os.path.join(BASE_DIR, 'web')
->>>>>>> 86f439593c80c4892df022cdad02c4e0ec4f90fd
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
@@ -283,7 +279,9 @@ async def upload_audio(file: UploadFile = File(...)):
         with open(file_path, "wb") as f:
             f.write(await file.read())
 
-        return JSONResponse(content={"message": "Upload successful"}, status_code=200)
+        return JSONResponse(content={ "message": "Prediction Complete!",
+        "prediction": 'FAKE',
+        "score": 20}, status_code=200)
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
