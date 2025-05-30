@@ -24,6 +24,9 @@ from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
 import os
+from torchvision import models
+import torch.nn as nn
+
 
 load_dotenv()
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
@@ -48,7 +51,10 @@ FRAME_FOLDER = os.path.join(BASE_DIR, 'processed_frames')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 WEBSITE_FOLDER = os.path.join(BASE_DIR, 'Website')
 UPLOAD_audio_FOLDER = os.path.join(BASE_DIR, 'audio_uploads')
+image_model = os.path.join(BASE_DIR, 'Model',"deepfake_detector_b0.pth")
+UPLOAD_IMAGE_FOLDER = "uploaded_images"
 
+os.makedirs(UPLOAD_IMAGE_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FRAME_FOLDER, exist_ok=True)
 
@@ -59,6 +65,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model_b4 = DeepfakeDetector().to(device)
 model_b5 = DeepfakeDetectorb5().to(device)
+
+model_image = models.efficientnet_b0(pretrained=False)
+model_image.classifier[1] = nn.Linear(model_image.classifier[1].in_features, 2)
+model_image.load_state_dict(torch.load(image_model, map_location=torch.device("cpu")))
 
 gradcam = GradCAM(model_b4, model_b4.base_model.features[-1])
 
@@ -328,29 +338,6 @@ async def upload_audio(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-#image route
-UPLOAD_IMAGE_FOLDER = "uploaded_images"
-os.makedirs(UPLOAD_IMAGE_FOLDER, exist_ok=True)
-
-@app.post("/upload_image")
-async def upload_image(image: UploadFile = File(...)):
-    try:
-        file_path = os.path.join(UPLOAD_IMAGE_FOLDER, image.filename)
-
-        # Debug print to make sure path is correct
-        print(f"Saving image to: {file_path}")
-
-        with open(file_path, "wb") as f:
-            f.write(await image.read())
-
-        return JSONResponse(content={"message": "Prediction Complete!",
-        "prediction": 'FAKE',
-        "score": 20,"status_code":200}, status_code=200)
-
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
-
-
 @app.get("/fact-check", response_model=ClaimResponse)
 def fact_check(claim: str = Query(..., description="The news claim to verify")):
     results = google_news_search(claim)
@@ -380,6 +367,47 @@ def fact_check(claim: str = Query(..., description="The news claim to verify")):
         "similarity_score": round(max_sim, 2),
         "sources": results
     }
+
+# Define image transforms
+transform_image = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+
+# Prediction response schema
+class Prediction(BaseModel):
+    message: str
+    result: str
+    confidence: float
+    status_code: int
+
+@app.post("/upload_image", response_model=Prediction)
+async def upload_and_predict(image: UploadFile = File(...)):
+    try:
+        file_path = os.path.join(UPLOAD_IMAGE_FOLDER, image.filename)
+        with open(file_path, "wb") as f:
+            f.write(await image.read())
+
+        # Re-open the saved image
+        img = Image.open(file_path).convert("RGB")
+        input_tensor = transform_image(img).unsqueeze(0)
+
+        with torch.no_grad():
+            output = model_image(input_tensor)
+            probabilities = torch.nn.functional.softmax(output[0], dim=0)
+            confidence, predicted = torch.max(probabilities, dim=0)
+
+        result = "Real" if predicted.item() == 1 else "Fake"
+
+        return {
+            "message": "Prediction Complete!",
+            "result": result,
+            "confidence": float(confidence),
+            "status_code": 200
+        }
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn
