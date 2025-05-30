@@ -12,6 +12,7 @@ import com.example.deepshield.presentation.Screens.AudioOutputProcessingScreen
 import com.example.deepshield.presentation.Screens.DeepFakeVideoOutput
 import com.example.deepshield.presentation.Screens.DeepFakeVideoScreen
 import com.example.deepshield.presentation.Screens.HeatCamScreen
+import com.example.deepshield.presentation.Screens.NewsChatScreen
 import com.example.deepshield.presentation.Screens.SelectDeepFakeTypeScreen
 import com.example.deepshield.presentation.Screens.VideoProcessingScreen
 import com.example.deepshield.presentation.Screens.VideoScreenSelector
@@ -48,6 +49,9 @@ fun MyApp() {
         composable<AUDIOPROCESSINGSCREEN> {backstackentry->
             val data:AUDIOPROCESSINGSCREEN = backstackentry.toRoute()
             AudioOutputProcessingScreen(song = data.audioUri, songTitle = data.audioTitle)
+        }
+        composable<NEWSCHATSCREEN> {
+            NewsChatScreen()
         }
     }
 
