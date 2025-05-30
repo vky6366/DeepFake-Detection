@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.net.toUri
 import io.ktor.client.request.*
-import io.ktor.http.*
 import com.example.deepshield.Constants.Constants
 import com.example.deepshield.data.KtorClient.KtorClient
 import com.example.deepshield.data.Response.AudioResponse
@@ -13,6 +12,7 @@ import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.data.Response.GradCamResponse
 import com.example.deepshield.data.Response.HeatMapResponse
+import com.example.deepshield.data.Response.ImageResponse
 import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
@@ -21,13 +21,10 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import io.ktor.http.appendPathSegments
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -178,6 +175,40 @@ override suspend fun uploadAudioToDeepFakeServer(
 
     }
 
+
+
+    override suspend fun imagePrediction(context: Context,imageUri: String): Flow<ApiResult<ImageResponse>> =flow{
+        emit(ApiResult.Loading)
+
+        val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri.toUri())
+        if (inputStream == null) {
+            emit(ApiResult.Error("Failed to open image file"))
+            return@flow
+        }
+
+        try {
+            val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+                url = "${Constants.BASE_URL}${Constants.IMAGE_ROUTE}",
+                formData = formData {
+                    append(
+                        "image",
+                        inputStream.readBytes(),
+                        Headers.build {
+                            append(HttpHeaders.ContentType, "image/jpeg") // or image/png if needed
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"image.jpg\"")
+                        }
+                    )
+                }
+            )
+
+            val apiResponse: ImageResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        } finally {
+            inputStream.close()
+        }
+    }
 
 
 }

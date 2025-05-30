@@ -4,6 +4,7 @@ import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
 import com.example.deepshield.data.UseCases.GetHeatMapUseCase
+import com.example.deepshield.data.UseCases.ImagePredictionUseCase
 import com.example.deepshield.data.UseCases.NewsPredictionUseCase
 import com.example.deepshield.data.UseCases.UploadAudioToServerUseCase
 import com.example.deepshield.data.UseCases.UploadVideoToServerUseCase
@@ -15,5 +16,6 @@ data class UseCaseHelperClass(
     val uploadVideoToDeepFakeServerUseCase: UploadVideoToServerUseCase,
     val getAllSongUseCase: GetAllSongUseCase,
     val uploadAudioToServerUseCase: UploadAudioToServerUseCase,
-    val newsPredictionUseCase: NewsPredictionUseCase
+    val newsPredictionUseCase: NewsPredictionUseCase,
+    val imagePredictionUseCase: ImagePredictionUseCase
 )

@@ -6,6 +6,7 @@ import com.example.deepshield.data.Response.AudioResponse
 import com.example.deepshield.data.Response.DeepFakeVideoResponse
 import com.example.deepshield.data.Response.GetFrameResponse
 import com.example.deepshield.data.Response.GradCamResponse
+import com.example.deepshield.data.Response.ImageResponse
 import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.domain.StateHandling.ApiResult
 import kotlinx.coroutines.flow.Flow
@@ -18,4 +19,5 @@ interface Repository {
     suspend fun getGradCamFromServer():Flow<ApiResult<GradCamResponse>>
     suspend fun uploadAudioToDeepFakeServer(context:Context,audioUrl:String):Flow<ApiResult<AudioResponse>>
     suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>>
+    suspend fun imagePrediction(context: Context,imageUri:String):Flow<ApiResult<ImageResponse>>
 }
