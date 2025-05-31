@@ -402,7 +402,7 @@ async def upload_and_predict(image: UploadFile = File(...)):
             probabilities = torch.nn.functional.softmax(output[0], dim=0)
             confidence, predicted = torch.max(probabilities, dim=0)
 
-        result = "Real" if predicted.item() == 1 else "Fake"
+        result = "Fake" if predicted.item() == 1 else "Real"
 
         return {
             "message": "Prediction Complete!",

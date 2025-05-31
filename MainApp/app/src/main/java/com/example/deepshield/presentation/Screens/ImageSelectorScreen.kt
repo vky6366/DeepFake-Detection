@@ -166,7 +166,7 @@ fun ImageSelectorScreen(navController: NavController,myViewModel: MyViewModel= h
                 ) {
                     if (imageUri.value.isEmpty()) {
                         Image(
-                            painter = painterResource(R.drawable.logo),
+                            painter = painterResource(R.drawable.logoforphishing),
                             contentDescription = "Selected Image",
                             modifier = Modifier.height(220.dp)
                         )
