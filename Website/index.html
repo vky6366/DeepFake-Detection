@@ -147,6 +147,39 @@
             </section>
         </section>
         <!-- image section -->
+<section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-red-500">
+            <section class="card p-8">
+                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Image</h2>
+                <form id="imageUploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
+                    <label for="imageInput"
+                        class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
+                        <input type="file" id="imageInput" name="image" accept="image/*" required class="hidden">
+                        <span id="fileName" class="text-gray-700 font-medium">Drop your image here or click to
+                            browse</span>
+                    </label>
+                    <button type="submit"
+                        class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+                        Analyze Image
+                    </button>
+                </form>
+                <div id="imageLoading" class="mt-6 text-center hidden">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                        <span class="text-[#0D47A1] font-medium">Processing image... Please wait.</span>
+                    </div>
+                </div>
+            </section>
+            <section id="imageResults" class="card p-8 hidden">
+                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+                <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                    <p class="text-2xl text-[#0D47A1]">
+                        <strong>Prediction:</strong> <span id="imagePrediction" class="ml-2">--</span>
+                    </p>
+                    <div id="imageConfidence" class="mt-2 text-lg text-[#0D47A1]"></div>
+                    <div id="imageMessage" class="mt-2 text-base text-[#0D47A1]"></div>
+                </div>
+            </section>
+        </section>
 
        
     </main>
@@ -336,6 +369,42 @@
 
         // IMAGE SECTION
         
+document.getElementById('imageInput').addEventListener('change', function () {
+            const file = this.files[0];
+            const fileNameSpan = document.getElementById('fileName');
+            fileNameSpan.textContent = file ? file.name : "Drop your image here or click to browse";
+        });
+        document.getElementById('imageUploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('imageInput');
+            if (fileInput.files.length === 0) {
+                alert('Please select an image before uploading.');
+                return;
+            }
+            document.getElementById('imageLoading').classList.remove('hidden');
+            document.getElementById('imageResults').classList.add('hidden');
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            try {
+                const response = await fetch('/upload_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                document.getElementById('imagePrediction').textContent = data.result || '--';
+                document.getElementById('imageConfidence').textContent =
+                    (typeof data.confidence === 'number')
+                        ? `Confidence: ${(data.confidence * 100).toFixed(1)}%`
+                        : '';
+                document.getElementById('imageMessage').textContent = data.message || '';
+                document.getElementById('imageResults').classList.remove('hidden');
+            } catch (error) {
+                alert('Error processing the image. Please try again.');
+            } finally {
+                document.getElementById('imageLoading').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
