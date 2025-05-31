@@ -29,7 +29,7 @@
         DEEPSHIELD
     </header>
 
-    <main class="container mx-auto px-2 py-6 flex flex-row gap-8 w-full flex-wrap">
+    <main class="container mx-auto px-2 py-6 flex flex-row gap-8 w-full flex-wrap  ">
         <!-- video section -->
         <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-blue-500">
             <section class="card p-8">
@@ -71,6 +71,7 @@
             </section>
         </section>
 
+
         <!-- audio section -->
         <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
             <section class="card p-8">
@@ -107,31 +108,29 @@
         <!-- text section -->
         <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
             <section class="card p-8">
-                <!-- form for uploading text -->
-                <form id="uploadForm" class="flex flex-col gap-6 items-center mt-6">
+                <h2 class="text-3xl font-semibold text-center text-blue-900">Enter a Text</h2>
+                <form id="textUploadForm" class="flex flex-col gap-6 items-center mt-6">
                     <label for="textInput" class="w-full">
                         <textarea id="textInput" name="text" rows="8" placeholder="Write your text or Paste your text here"
                             required
                             class="w-full p-4 rounded-lg border border-gray-300 text-gray-800 resize-y bg-blue-100"></textarea>
                     </label>
-                    <!-- button for submitting form -->
                     <button type="submit"
                         class="bg-blue-900 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300">
                         Analyze Text
                     </button>
                 </form>
             </section>
-            <h2 class="text-3xl font-semibold text-center text-blue-900">Enter a Text</h2>
+            
 
-            <div id="audioLoading" class="mt-6 text-center hidden">
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                        <span class="text-[#0D47A1] font-medium">Processing audio... Please wait.</span>
-                    </div>
+            <div id="textLoading" class="mt-6 text-center hidden">
+                <div class="flex items-center justify-center gap-3">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                    <span class="text-[#0D47A1] font-medium">Processing text... Please wait.</span>
                 </div>
+            </div>
 
-            <!-- Results Section -->
-            <section id="results" class="card p-8 hidden bg-white rounded-lg shadow">
+            <section id="textResults" class="card p-8 hidden bg-white rounded-lg shadow">
                 <h2 class="text-3xl font-semibold text-center text-blue-900">Analysis Results</h2>
                 <div class="text-center p-4 bg-blue-100 rounded-lg mt-4">
                     <p class="text-2xl text-blue-900">
@@ -147,144 +146,83 @@
                 </div>
             </section>
         </section>
-    </main>
-    <!-- main content ends -->
+        <!-- image section -->
 
+       
+    </main>
     <script>
-        // VIDEO SECTION JS
+        // VIDEO SECTION
         document.getElementById('videoInput').addEventListener('change', function () {
             const file = this.files[0];
-            if (file) {
-                if (!file.type.startsWith('video/')) {
-                    alert('Please upload a valid video file.');
-                    this.value = '';
-                    return;
-                }
-                document.getElementById('videoFileName').textContent = file.name;
-            } else {
-                document.getElementById('videoFileName').textContent = "Drop your video here or click to browse";
-            }
+            document.getElementById('videoFileName').textContent = file ? file.name : "Drop your video here or click to browse";
         });
-
         document.getElementById('videoUploadForm').addEventListener('submit', async function (event) {
             event.preventDefault();
-
             const fileInput = document.getElementById('videoInput');
             if (fileInput.files.length === 0) {
                 alert('Please select a video before uploading.');
                 return;
             }
-
             try {
                 document.getElementById('videoLoading').classList.remove('hidden');
                 document.getElementById('videoResults').classList.add('hidden');
                 document.getElementById('heatmapSection').classList.add('hidden');
                 document.getElementById('gradcamImg').classList.add('hidden');
-
                 const formData = new FormData();
                 formData.append('video', fileInput.files[0]);
-
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch('/upload', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
                 const data = await response.json();
                 document.getElementById('videoPrediction').textContent = `${data.prediction}`;
                 document.getElementById('videoResults').classList.remove('hidden');
-
-                // Always call fetchVisual with prediction value
                 await fetchVisual(data.prediction);
-
             } catch (error) {
-                console.error('Error:', error);
                 alert('Error processing the video. Please try again.');
             } finally {
                 document.getElementById('videoLoading').classList.add('hidden');
             }
         });
-
         async function fetchVisual(prediction) {
             const endpoint = (prediction.toLowerCase() === 'fake') ? '/gradcam' : '/frame';
             try {
                 const response = await fetch(`${endpoint}?timestamp=${new Date().getTime()}`);
-                if (!response.ok) {
-                    console.warn(`Non-OK response from ${endpoint} endpoint:`, response.status);
-                    return;
-                }
-
+                if (!response.ok) return;
                 const data = await response.json();
                 const imageBytes = data.heatmap_bytes || data.frame_bytes;
-
-                if (!imageBytes || imageBytes.length === 0) {
-                    console.warn('Empty image data received');
-                    return;
-                }
-
+                if (!imageBytes || imageBytes.length === 0) return;
                 const blob = new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" });
                 const gradcamImg = document.getElementById('gradcamImg');
-                if (!gradcamImg) {
-                    console.warn('gradcamImg element not found');
-                    return;
-                }
-
+                if (!gradcamImg) return;
                 if (gradcamImg.src) URL.revokeObjectURL(gradcamImg.src);
                 gradcamImg.src = URL.createObjectURL(blob);
                 gradcamImg.classList.remove('hidden');
                 document.getElementById('heatmapSection').classList.remove('hidden');
-                console.log(`Visual (${endpoint}) displayed successfully`);
-
-            } catch (error) {
-                console.warn(`Visual fetch warning (${endpoint}):`, error);
-            }
+            } catch (error) {}
         }
 
-        // AUDIO SECTION JS
+        // AUDIO SECTION
         document.getElementById('audioInput').addEventListener('change', function () {
             const file = this.files[0];
-            if (file) {
-                if (!file.type.startsWith('audio/')) {
-                    alert('Please upload a valid audio file.');
-                    this.value = '';
-                    return;
-                }
-                document.getElementById('audioFileName').textContent = file.name;
-            } else {
-                document.getElementById('audioFileName').textContent = "Drop your Audio here or click to browse";
-            }
+            document.getElementById('audioFileName').textContent = file ? file.name : "Drop your Audio here or click to browse";
         });
-
         document.getElementById('audioUploadForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const audioInput = document.getElementById('audioInput');
-            const fileNameSpan = document.getElementById('audioFileName');
             const loadingDiv = document.getElementById('audioLoading');
             const resultsSection = document.getElementById('audioResults');
             const predictionSpan = document.getElementById('audioPrediction');
-
             if (!audioInput.files.length) {
                 alert("Please select an audio file.");
                 return;
             }
-
             loadingDiv.classList.remove('hidden');
             resultsSection.classList.add('hidden');
-
             const formData = new FormData();
             formData.append('file', audioInput.files[0]);
-
             try {
-                const response = await fetch('/upload_audio', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch('/upload_audio', { method: 'POST', body: formData });
                 const data = await response.json();
-
                 loadingDiv.classList.add('hidden');
-
                 if (response.ok && data && data.prediction) {
                     predictionSpan.textContent = data.prediction + " (Score: " + data.score + ")";
                     resultsSection.classList.remove('hidden');
@@ -299,9 +237,8 @@
             }
         });
 
-        // TEXT SECTION JS
+        // TEXT SECTION
         async function analyzeTextAPI(text) {
-            // Simulate a network delay and return static data
             return new Promise(resolve => {
                 setTimeout(() => {
                     resolve({
@@ -309,11 +246,10 @@
                         "result": "Fake",
                         "similarity_score": 0.61,
                         "sources": [
-                            {
-                                "title": "Scientists find promising hints of life on distant planet K2-18b",
-                                "url": "https://www.bbc.com/news/articles/c39jj9vkr34o"
-                            },
-                            {
+                            { "title": "Scientists find promising hints of life on distant planet K2-18b",
+                             "url": "https://www.bbc.com/news/articles/c39jj9vkr34o"
+                             },
+                             {
                                 "title": "Portal to alien life? NASA finds mysterious 300-foot hole on Mars",
                                 "url": "https://timesofindia.indiatimes.com/etimes/trending/portal-to-alien-life-nasa-finds-mysterious-300-foot-hole-on-mars/articleshow/120391362.cms"
                             },
@@ -349,45 +285,33 @@
                                 "title": "Nasa reveals why we haven't detected any advanced alien civilisation so far",
                                 "url": "https://www.indiatoday.in/science/story/nasa-reveals-why-we-havent-detected-any-advanced-alien-civilisation-so-far-2576963-2024-08-05"
                             }
+
                         ]
                     });
                 }, 1000);
             });
         }
-
-        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+        document.getElementById('textUploadForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            // Hide previous results & show loading
-            document.getElementById('results').classList.add('hidden');
-            document.getElementById('loading').classList.remove('hidden');
-
+            document.getElementById('textResults').classList.add('hidden');
+            document.getElementById('textLoading').classList.remove('hidden');
             const text = document.getElementById('textInput').value.trim();
-
             try {
-                // Replace with fetch to real API as needed
                 const analysis = await analyzeTextAPI(text);
-
-                // Set Prediction
                 document.getElementById('prediction').textContent = analysis.result || '--';
-                // Set Similarity Score
                 document.getElementById('similarity').textContent =
                     (typeof analysis.similarity_score === "number")
                         ? `Similarity Score: ${(analysis.similarity_score * 100).toFixed(1)}%`
                         : '';
-                // Set Claim
                 document.getElementById('claim').textContent = analysis.claim ? `Claim: ${analysis.claim}` : '';
-
-                // Set Sources
                 const sourceList = document.getElementById('source-list');
                 sourceList.innerHTML = '';
                 if (Array.isArray(analysis.sources)) {
                     analysis.sources.forEach(src => {
                         const li = document.createElement("li");
-                        // Title as plain text
                         const titleSpan = document.createElement("span");
                         titleSpan.textContent = src.title + " ";
                         li.appendChild(titleSpan);
-                        // URL as clickable link
                         const a = document.createElement("a");
                         a.href = src.url;
                         a.textContent = src.url;
@@ -398,15 +322,20 @@
                         sourceList.appendChild(li);
                     });
                 }
-
-                // Show Results, Hide Loading
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('textLoading').classList.add('hidden');
+                document.getElementById('textResults').classList.remove('hidden');
             } catch (err) {
-                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('textLoading').classList.add('hidden');
                 alert("An error occurred while analyzing the text. Please try again.");
             }
+
+            window.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('textInput').value = '';
+});
         });
+
+        // IMAGE SECTION
+        
     </script>
 </body>
 </html>
