@@ -1,1 +1,1 @@
-claim
+upload_image
