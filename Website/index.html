@@ -29,160 +29,199 @@
         DEEPSHIELD
     </header>
 
-    <main class="container mx-auto px-2 py-6 flex flex-row gap-8 w-full flex-wrap  ">
-        <!-- video section -->
-        <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-blue-500">
-            <section class="card p-8">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Video</h2>
-                <form id="videoUploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
-                    <label for="videoInput"
-                        class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
-                        <input type="file" id="videoInput" name="video" accept="video/*" required class="hidden">
-                        <span id="videoFileName" class="text-gray-700 font-medium">Drop your video here or click to
-                            browse</span>
-                    </label>
-                    <button type="submit"
-                        class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
-                        Analyze Video
-                    </button>
-                </form>
-                <div id="videoLoading" class="mt-6 text-center hidden">
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                        <span class="text-[#0D47A1] font-medium">Processing video... Please wait.</span>
+    <main
+        class="container mx-auto px-2 py-2 flex flex-col lg:flex-row gap-8 w-full flex-wrap items-center justify-center">
+        <section class="flex flex-col lg:flex-col items-center gap-4 w-full">
+
+
+            <section class="flex flex-col lg:flex-row items-center gap-4 w-full ">
+                <!-- Video section -->
+                <section
+                    class="container mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col gap-8 w-full max-w-3xl bg-blue-300 rounded-lg">
+                    <section class="card p-4 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Upload a Video</h2>
+                        <form id="videoUploadForm" enctype="multipart/form-data"
+                            class="flex flex-col gap-6 items-center mt-6">
+                            <label for="videoInput"
+                                class="cursor-pointer upload-box flex flex-col items-center gap-4 p-4 sm:p-6 rounded-lg transition-all duration-300 bg-white w-full">
+                                <input type="file" id="videoInput" name="video" accept="video/*" required
+                                    class="hidden">
+                                <span id="videoFileName" class="text-gray-700 font-medium text-center">Drop your video
+                                    here
+                                    or click to
+                                    browse</span>
+                            </label>
+                            <button type="submit"
+                                class="w-full sm:w-auto bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+                                Analyze Video
+                            </button>
+                        </form>
+                        <div id="videoLoading" class="mt-6 text-center hidden">
+                            <div class="flex items-center justify-center gap-3">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                                <span class="text-[#0D47A1] font-medium">Processing video... Please wait.</span>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="videoResults" class="card p-4 sm:p-8 hidden">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+                        <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                            <p class="text-2xl text-[#0D47A1]">
+                                <strong>Prediction:</strong> <span id="videoPrediction" class="ml-2">--</span>
+                            </p>
+                        </div>
+                    </section>
+                    <section id="heatmapSection" class="card p-4 sm:p-8 hidden">
+                        <div class="space-y-4 text-center">
+                            <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
+                            <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
+                                <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Text section -->
+                <section
+                    class="container mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col gap-8 w-full max-w-3xl bg-blue-300 rounded-lg ">
+                    <section class="card p-4 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-blue-900">Enter a Text</h2>
+                        <form id="textUploadForm" class="flex flex-col gap-6 items-center mt-6">
+                            <label for="textInput" class="w-full">
+                                <textarea id="textInput" name="text" rows="2"
+                                    placeholder="Write your text or Paste your text here" required
+                                    class="w-full p-4 rounded-lg border-2 border-[#0D47A1] text-gray-700 font-medium resize-y upload-box"></textarea>
+                            </label>
+                            <button type="submit"
+                                class="w-full sm:w-auto bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300">
+                                Analyze Text
+                            </button>
+                        </form>
+                    </section>
+
+                    <div id="textLoading" class="mt-6 text-center hidden">
+                        <div class="flex items-center justify-center gap-3">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                            <span class="text-[#0D47A1] font-medium">Processing text... Please wait.</span>
+                        </div>
                     </div>
-                </div>
+
+                    <section id="textResults" class="card p-4 sm:p-8 hidden bg-white rounded-lg shadow ">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-blue-900">Analysis Results</h2>
+                        <div class="text-center p-4 bg-blue-100 rounded-lg mt-4">
+                            <p class="text-2xl text-blue-900">
+                                <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
+                            </p>
+                            <div class="mt-2 text-lg text-blue-900" id="similarity"></div>
+                            <div class="mt-2 text-base text-blue-900" id="claim"></div>
+                        </div>
+                        <div class="card p-4 sm:p-8">
+                            <div>
+                                <ul id="source-list" class="mt-8 list-disc list-inside space-y-2"></ul>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+
+
             </section>
-            <section id="videoResults" class="card p-8 hidden">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
-                <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
-                    <p class="text-2xl text-[#0D47A1]">
-                        <strong>Prediction:</strong> <span id="videoPrediction" class="ml-2">--</span>
-                    </p>
-                </div>
+
+            <section class="flex flex-col lg:flex-row items-center gap-4 w-full ">
+
+
+                <!-- Audio section -->
+                <section
+                    class="container mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col gap-8 w-full max-w-3xl bg-blue-300 rounded-lg">
+                    <section class="card p-4 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Upload a Audio</h2>
+                        <form id="audioUploadForm" enctype="multipart/form-data"
+                            class="flex flex-col gap-6 items-center mt-6">
+                            <label for="audioInput"
+                                class="cursor-pointer upload-box flex flex-col items-center gap-4 p-4 sm:p-6 rounded-lg transition-all duration-300 bg-white w-full">
+                                <input type="file" id="audioInput" name="audio" accept="audio/*" required
+                                    class="hidden">
+                                <span id="audioFileName" class="text-gray-700 font-medium text-center">Drop your Audio
+                                    here
+                                    or click to
+                                    browse</span>
+                            </label>
+                            <button type="submit"
+                                class="w-full sm:w-auto bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+                                Analyze Audio
+                            </button>
+                        </form>
+                        <div id="audioLoading" class="mt-6 text-center hidden">
+                            <div class="flex items-center justify-center gap-3">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                                <span class="text-[#0D47A1] font-medium">Processing audio... Please wait.</span>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="audioResults" class="card p-4 sm:p-8 hidden">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+                        <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                            <p class="text-2xl text-[#0D47A1]">
+                                <strong>Prediction:</strong> <span id="audioPrediction" class="ml-2">--</span>
+                            </p>
+                        </div>
+                    </section>
+                </section>
+                <!-- Image section -->
+                <section
+                    class="container mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col gap-8 w-full max-w-3xl bg-blue-300 rounded-lg  ">
+                    <section class="card p-4 sm:p-8">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Upload a Image</h2>
+                        <form id="imageUploadForm" enctype="multipart/form-data"
+                            class="flex flex-col gap-6 items-center mt-6">
+                            <label for="imageInput"
+                                class="cursor-pointer upload-box flex flex-col items-center gap-4 p-4 sm:p-6 rounded-lg transition-all duration-300 bg-white w-full">
+                                <input type="file" id="imageInput" name="image" accept="image/*" required
+                                    class="hidden">
+                                <span id="fileName" class="text-gray-700 font-medium text-center">Drop your image here
+                                    or
+                                    click to
+                                    browse</span>
+                            </label>
+                            <button type="submit"
+                                class="w-full sm:w-auto bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
+                                Analyze Image
+                            </button>
+                        </form>
+                        <div id="imageLoading" class="mt-6 text-center hidden">
+                            <div class="flex items-center justify-center gap-3">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
+                                <span class="text-[#0D47A1] font-medium">Processing image... Please wait.</span>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="imageResults" class="card p-4 sm:p-8 hidden">
+                        <h2 class="text-2xl sm:text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
+                        <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
+                            <p class="text-2xl text-[#0D47A1]">
+                                <strong>Prediction:</strong> <span id="imagePrediction" class="ml-2">--</span>
+                            </p>
+                            <div id="imageConfidence" class="mt-2 text-lg text-[#0D47A1]"></div>
+                            <div id="imageMessage" class="mt-2 text-base text-[#0D47A1]"></div>
+                        </div>
+                    </section>
+                </section>
             </section>
-            <section id="heatmapSection" class="card p-8 hidden">
-                <div class="space-y-4 text-center">
-                    <h3 class="font-semibold text-[#0D47A1]">Heatmap Analysis</h3>
-                    <div class="relative aspect-video bg-[#E3F2FD] rounded-lg overflow-hidden">
-                        <img id="gradcamImg" class="w-full h-full object-contain hidden" alt="Grad-CAM Heatmap">
-                    </div>
-                </div>
-            </section>
+
+
         </section>
-
-
-        <!-- audio section -->
-        <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
-            <section class="card p-8">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Audio</h2>
-                <form id="audioUploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
-                    <label for="audioInput"
-                        class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
-                        <input type="file" id="audioInput" name="audio" accept="audio/*" required class="hidden">
-                        <span id="audioFileName" class="text-gray-700 font-medium">Drop your Audio here or click to
-                            browse</span>
-                    </label>
-                    <button type="submit"
-                        class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
-                        Analyze Audio
-                    </button>
-                </form>
-                <div id="audioLoading" class="mt-6 text-center hidden">
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                        <span class="text-[#0D47A1] font-medium">Processing audio... Please wait.</span>
-                    </div>
-                </div>
-            </section>
-            <section id="audioResults" class="card p-8 hidden">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
-                <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
-                    <p class="text-2xl text-[#0D47A1]">
-                        <strong>Prediction:</strong> <span id="audioPrediction" class="ml-2">--</span>
-                    </p>
-                </div>
-            </section>
-        </section>
-
-        <!-- text section -->
-        <section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-green-500">
-            <section class="card p-8">
-                <h2 class="text-3xl font-semibold text-center text-blue-900">Enter a Text</h2>
-                <form id="textUploadForm" class="flex flex-col gap-6 items-center mt-6">
-                    <label for="textInput" class="w-full">
-                        <textarea id="textInput" name="text" rows="8" placeholder="Write your text or Paste your text here"
-                            required
-                            class="w-full p-4 rounded-lg border border-gray-300 text-gray-800 resize-y bg-blue-100"></textarea>
-                    </label>
-                    <button type="submit"
-                        class="bg-blue-900 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-800 transition-colors duration-300">
-                        Analyze Text
-                    </button>
-                </form>
-            </section>
-            
-
-            <div id="textLoading" class="mt-6 text-center hidden">
-                <div class="flex items-center justify-center gap-3">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                    <span class="text-[#0D47A1] font-medium">Processing text... Please wait.</span>
-                </div>
-            </div>
-
-            <section id="textResults" class="card p-8 hidden bg-white rounded-lg shadow">
-                <h2 class="text-3xl font-semibold text-center text-blue-900">Analysis Results</h2>
-                <div class="text-center p-4 bg-blue-100 rounded-lg mt-4">
-                    <p class="text-2xl text-blue-900">
-                        <strong>Prediction:</strong> <span id="prediction" class="ml-2">--</span>
-                    </p>
-                    <div class="mt-2 text-lg text-blue-900" id="similarity"></div>
-                    <div class="mt-2 text-base text-blue-900" id="claim"></div>
-                </div>
-                <div class="card p-8">
-                    <div>
-                        <ul id="source-list" class="mt-8 list-disc list-inside space-y-2"></ul>
-                    </div>
-                </div>
-            </section>
-        </section>
-        <!-- image section -->
-<section class="container mx-auto px-6 py-12 flex flex-col gap-8 w-full max-w-3xl bg-red-500">
-            <section class="card p-8">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Upload a Image</h2>
-                <form id="imageUploadForm" enctype="multipart/form-data" class="flex flex-col gap-6 items-center mt-6">
-                    <label for="imageInput"
-                        class="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg transition-all duration-300 bg-white">
-                        <input type="file" id="imageInput" name="image" accept="image/*" required class="hidden">
-                        <span id="fileName" class="text-gray-700 font-medium">Drop your image here or click to
-                            browse</span>
-                    </label>
-                    <button type="submit"
-                        class="bg-[#0D47A1] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[#08337a] transition-colors duration-300">
-                        Analyze Image
-                    </button>
-                </form>
-                <div id="imageLoading" class="mt-6 text-center hidden">
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0D47A1]"></div>
-                        <span class="text-[#0D47A1] font-medium">Processing image... Please wait.</span>
-                    </div>
-                </div>
-            </section>
-            <section id="imageResults" class="card p-8 hidden">
-                <h2 class="text-3xl font-semibold text-center text-[#0D47A1]">Analysis Results</h2>
-                <div class="text-center p-4 bg-[#E3F2FD] rounded-lg mt-4">
-                    <p class="text-2xl text-[#0D47A1]">
-                        <strong>Prediction:</strong> <span id="imagePrediction" class="ml-2">--</span>
-                    </p>
-                    <div id="imageConfidence" class="mt-2 text-lg text-[#0D47A1]"></div>
-                    <div id="imageMessage" class="mt-2 text-base text-[#0D47A1]"></div>
-                </div>
-            </section>
-        </section>
-
-       
     </main>
+
+    <script>
+        function showSection(type) {
+            document.getElementById("videoSection").classList.add("hidden");
+            document.getElementById("audioSection").classList.add("hidden");
+            document.getElementById("imageSection").classList.add("hidden");
+            document.getElementById("textSection").classList.add("hidden");
+            document.getElementById(type + "Section").classList.remove("hidden");
+            document.getElementById(type + "Card").scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
     <script>
         // VIDEO SECTION
         document.getElementById('videoInput').addEventListener('change', function () {
@@ -230,7 +269,7 @@
                 gradcamImg.src = URL.createObjectURL(blob);
                 gradcamImg.classList.remove('hidden');
                 document.getElementById('heatmapSection').classList.remove('hidden');
-            } catch (error) {}
+            } catch (error) { }
         }
 
         // AUDIO SECTION
@@ -279,10 +318,11 @@
                         "result": "Fake",
                         "similarity_score": 0.61,
                         "sources": [
-                            { "title": "Scientists find promising hints of life on distant planet K2-18b",
-                             "url": "https://www.bbc.com/news/articles/c39jj9vkr34o"
-                             },
-                             {
+                            {
+                                "title": "Scientists find promising hints of life on distant planet K2-18b",
+                                "url": "https://www.bbc.com/news/articles/c39jj9vkr34o"
+                            },
+                            {
                                 "title": "Portal to alien life? NASA finds mysterious 300-foot hole on Mars",
                                 "url": "https://timesofindia.indiatimes.com/etimes/trending/portal-to-alien-life-nasa-finds-mysterious-300-foot-hole-on-mars/articleshow/120391362.cms"
                             },
@@ -362,14 +402,14 @@
                 alert("An error occurred while analyzing the text. Please try again.");
             }
 
-            window.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('textInput').value = '';
-});
+            window.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('textInput').value = '';
+            });
         });
 
         // IMAGE SECTION
-        
-document.getElementById('imageInput').addEventListener('change', function () {
+
+        document.getElementById('imageInput').addEventListener('change', function () {
             const file = this.files[0];
             const fileNameSpan = document.getElementById('fileName');
             fileNameSpan.textContent = file ? file.name : "Drop your image here or click to browse";
@@ -407,4 +447,5 @@ document.getElementById('imageInput').addEventListener('change', function () {
         });
     </script>
 </body>
+
 </html>
