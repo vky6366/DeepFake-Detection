@@ -29,12 +29,14 @@ import librosa
 from torchvision import models
 import torch.nn as nn
 
+from langdetect import detect
+from googletrans import Translator
 
 load_dotenv()
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 app = FastAPI(title="Deepfake Detection API")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model_llm = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Add CORS middleware
 # Update the CORS middleware settings
@@ -342,32 +344,44 @@ async def predict(file: UploadFile = File(...)):
         label = "Real" if predicted_class == 0 else "Fake"
 
     return {"prediction": label}
-
+translator = Translator()
 @app.get("/fact-check", response_model=ClaimResponse)
 def fact_check(claim: str = Query(..., description="The news claim to verify")):
+    original_claim = claim
+
+    # Detect and translate if not English
+    try:
+        detected_lang = detect(claim)
+        if detected_lang != "en":
+            translation = translator.translate(claim, src=detected_lang, dest="en")
+            claim = translation.text
+    except Exception as e:
+        print(f"Translation error: {e}")
+        pass  # Continue with original claim if translation fails
+
     results = google_news_search(claim)
-    
+
     if not results:
         return {
-            "claim": claim,
+            "claim": original_claim,
             "result": "Fake",
-            "similarity_score": 00.0,
+            "similarity_score": 0.0,
             "sources": []
         }
 
-    claim_embedding = model.encode(claim)
+    claim_embedding = model_llm.encode(claim)
     max_sim = 0.0
 
     for article in results:
         text = article["title"] + " - " + article["url"]
-        article_embedding = model.encode(text)
+        article_embedding = model_llm.encode(text)
         sim = util.cos_sim(claim_embedding, article_embedding).item()
         max_sim = max(max_sim, sim)
 
     result = "Real" if max_sim > 0.7 else "Fake"
 
     return {
-        "claim": claim,
+        "claim": original_claim,  # Show input as user typed
         "result": result,
         "similarity_score": round(max_sim, 2),
         "sources": results
