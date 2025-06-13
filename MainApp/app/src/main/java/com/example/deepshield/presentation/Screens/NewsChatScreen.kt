@@ -257,7 +257,7 @@ fun  NewsChatScreen(viewmodel: MyViewModel= hiltViewModel(),navController: NavCo
 
                         // Overlayed Text
                         Text(
-                            text = "Select Video",  // Your desired text
+                            text = "Upload News",  // Your desired text
                             color = Color.White,  // Adjust color for visibility
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold

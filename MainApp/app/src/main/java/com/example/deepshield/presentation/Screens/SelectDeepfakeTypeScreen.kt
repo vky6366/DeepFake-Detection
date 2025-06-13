@@ -48,7 +48,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
     ) {
         // Header Title
         Text(
-            text = "Media Hub",
+            text = "Deep Shield",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
