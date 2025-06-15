@@ -16,6 +16,7 @@ import com.example.deepshield.data.Response.ImageResponse
 import com.example.deepshield.data.Response.NewResponse
 import com.example.deepshield.domain.Repository.Repository
 import com.example.deepshield.domain.StateHandling.ApiResult
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -28,8 +29,9 @@ import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import javax.inject.Inject
 
-class RepositoryImpl:Repository {
+class RepositoryImpl @Inject constructor(private val httpClient: HttpClient):Repository {
         override suspend fun uploadVideoToDeepFakeServer(
         context: Context,
         videoUri: String
@@ -43,7 +45,7 @@ class RepositoryImpl:Repository {
         }
 
         try {
-            val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+            val response: HttpResponse = httpClient.submitFormWithBinaryData(
                 url = "${Constants.BASE_URL}${Constants.VIDEO_ROUTE}",  // ✅ Corrected URL Concatenation
                 formData = formData {
                     append("video",
@@ -72,7 +74,7 @@ class RepositoryImpl:Repository {
         emit(ApiResult.Loading)
         try {
             // Perform Ktor GET request and parse response
-            val response: GetFrameResponse = KtorClient.client.get("").body()
+            val response: GetFrameResponse = httpClient.get("").body()
 
             // Convert image_bytes to Bitmap
             response.toBitmap()?.let { bitmap ->
@@ -87,7 +89,7 @@ class RepositoryImpl:Repository {
     override suspend fun getHeatMapFromServer(): Flow<ApiResult<Bitmap>> = flow{
         emit(ApiResult.Loading)
         try {
-            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.HEATMAP}")
+            val response: HttpResponse =httpClient.get("${Constants.BASE_URL}${Constants.HEATMAP}")
             val apiResponse: HeatMapResponse = response.body()
 
             // Convert the response to a Bitmap
@@ -101,7 +103,7 @@ class RepositoryImpl:Repository {
     override suspend fun getGradCamFromServer(): Flow<ApiResult<GradCamResponse>> =flow{
         emit(ApiResult.Loading)
         try {
-            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.GRADCAM}")
+            val response: HttpResponse = httpClient.get("${Constants.BASE_URL}${Constants.GRADCAM}")
             val apiResponse: GradCamResponse = response.body()
             emit(ApiResult.Success(apiResponse))
         }catch (e:Exception){
@@ -124,7 +126,7 @@ override suspend fun uploadAudioToDeepFakeServer(
     }
 
     try {
-        val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+        val response: HttpResponse = httpClient.submitFormWithBinaryData(
             url = "${Constants.BASE_URL}${Constants.AUDIO_ROUTE}",
             formData = formData {
                 append(
@@ -155,7 +157,7 @@ override suspend fun uploadAudioToDeepFakeServer(
     override suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>> =flow{
         emit(ApiResult.Loading)
         try {
-            val response: HttpResponse = KtorClient.client.get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
+            val response: HttpResponse =httpClient.get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
                 parameter("claim",claim)
             }
 //            val response: HttpResponse = KtorClient.client.get {
@@ -187,7 +189,7 @@ override suspend fun uploadAudioToDeepFakeServer(
         }
 
         try {
-            val response: HttpResponse = KtorClient.client.submitFormWithBinaryData(
+            val response: HttpResponse =httpClient.submitFormWithBinaryData(
                 url = "${Constants.BASE_URL}${Constants.IMAGE_ROUTE}",
                 formData = formData {
                     append(

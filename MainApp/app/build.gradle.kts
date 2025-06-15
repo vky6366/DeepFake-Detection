@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.deepshield.di.HiltAndroidTestRunner"
     }
 
     buildTypes {
@@ -86,6 +86,33 @@ dependencies {
     //extended icons
     implementation ("androidx.compose.material:material-icons-core:1.6.7")
     implementation ("androidx.compose.material:material-icons-extended:1.6.7")
+
+
+
+    //Mock Test ktor
+    testImplementation("io.ktor:ktor-client-mock:2.3.5")
+
+    androidTestImplementation("io.ktor:ktor-client-mock:2.3.5")
+
+
+    //hilt testing
+    // For Robolectric tests.
+    testImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    // ...with Kotlin.
+    kaptTest("com.google.dagger:hilt-android-compiler:2.51.1")
+    // ...with Java.
+    testAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.51.1")
+
+
+    // For instrumented tests.
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    // ...with Kotlin.
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.51.1")
+    // ...with Java.
+    androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.51.1")
+
+
+
 
 
 }
