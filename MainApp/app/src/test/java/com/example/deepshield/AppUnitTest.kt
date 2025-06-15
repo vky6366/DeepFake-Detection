@@ -63,7 +63,6 @@ class AppUnitTest {
 
     @Test
     fun `get All Songs Test Case`() = runBlocking{
-
         val result = getAllSongUseCase.invoke().first()
         val report = result is ResultState.Success
         assertTrue(report)

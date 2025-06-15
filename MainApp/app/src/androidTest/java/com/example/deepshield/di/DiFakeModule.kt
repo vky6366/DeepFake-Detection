@@ -1,6 +1,8 @@
 package com.example.deepshield.di
 
 import android.content.Context
+import com.example.deepshield.Constants.Constants
+import com.example.deepshield.MockJson.TestJson
 import com.example.deepshield.data.UseCases.GetAllSongUseCase
 import com.example.deepshield.data.UseCases.GetFrameFromServerUseCase
 import com.example.deepshield.data.UseCases.GetGradCamUseCase
@@ -21,20 +23,45 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DiObject {
+object DiFakeModule {
+
     @Provides
     @Singleton
     fun provideHttpClient():HttpClient{
 
-        val client = HttpClient(CIO){
+        val mockEngine = MockEngine{result->
+            val url = result.url.toString()
+            val expectedjson = when{
+                "${Constants.BASE_URL}${Constants.VIDEO_ROUTE}" in url ->{
+                    TestJson.video_route_json
+                }
+                else->{
+                    "[]"
+                }
+
+            }
+            respond(
+                content = ByteReadChannel(expectedjson),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = HttpClient(mockEngine){
             install(HttpTimeout) {
                 requestTimeoutMillis = 300_000 // 120 seconds (2 minutes)
                 connectTimeoutMillis = 300_000  // 60 seconds (1 minute)
@@ -88,5 +115,6 @@ object DiObject {
     fun providesongRepoObj(@ApplicationContext context: Context): SongRepository{
         return SongRepoImpl(context =context )
     }
-
 }
+
+
