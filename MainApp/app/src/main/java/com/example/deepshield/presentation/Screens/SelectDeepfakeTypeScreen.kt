@@ -28,10 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.deepshield.data.Constants.TestTags
 import com.example.deepshield.presentation.Navigation.ALLSONGSCREEN
 import com.example.deepshield.presentation.Navigation.IMAGESELECTIONSCREEN
 import com.example.deepshield.presentation.Navigation.NEWSCHATSCREEN
@@ -63,6 +65,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .size(140.dp)
+                    .testTag(TestTags.VIDEOCARD)
                     .clickable {
                         navController.navigate(VIDEOSELECTIONSCREEN)
                     },
@@ -99,6 +102,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .size(140.dp)
+                    .testTag(TestTags.IMAGECARD)
                     .clickable {
                        navController.navigate(IMAGESELECTIONSCREEN)
                     },
@@ -143,6 +147,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .size(140.dp)
+                    .testTag(TestTags.AUDIOCARD)
                     .clickable {
                         navController.navigate(ALLSONGSCREEN)
                     },
@@ -179,6 +184,7 @@ fun SelectDeepFakeTypeScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .size(140.dp)
+                    .testTag(TestTags.NEWSCARD)
                     .clickable {
                         navController.navigate( NEWSCHATSCREEN)
                     },

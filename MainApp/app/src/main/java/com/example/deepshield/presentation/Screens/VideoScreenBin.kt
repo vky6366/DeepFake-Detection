@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.semantics.SemanticsProperties.TestTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +47,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.deepshield.R
+import com.example.deepshield.data.Constants.TestTags
 import com.example.deepshield.presentation.Navigation.VIDEOUPLOADSCREENROUTE
 import com.example.deepshield.presentation.viewModel.MyViewModel
 import com.shashank.sony.fancytoastlib.FancyToast
@@ -140,6 +143,7 @@ fun VideoScreenSelector(viewmodel: MyViewModel = hiltViewModel(), navController:
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .height(50.dp)
+                .testTag(TestTags.VIDEOSELECTIONSCREEN)
                 .clickable {
                     medialauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
                 }
