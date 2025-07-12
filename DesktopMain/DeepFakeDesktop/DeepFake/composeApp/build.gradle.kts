@@ -46,6 +46,11 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(libs.koin.core)
+            implementation("io.insert-koin:koin-compose:1.0.3") // ✅ fixes the "not found" issue
+
+
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.koin.core)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -64,12 +69,17 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
+
+
+
             //FilePicker
             // Enables FileKit dialogs without Compose dependencies
             implementation("io.github.vinceglb:filekit-dialogs:0.10.0-beta04")
 
 // Enables FileKit dialogs with Composable utilities
             implementation("io.github.vinceglb:filekit-dialogs-compose:0.10.0-beta04")
+
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
