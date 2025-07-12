@@ -9,9 +9,11 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.example.project.data.ApiResponse.AudioResponse
 import org.example.project.data.ApiResponse.DeepFakeVideoResponse
+import org.example.project.data.ApiResponse.ImageResponse
 import org.example.project.data.stateHandler.ApiResult
-import org.example.project.domain.Repository
+import org.example.project.domain.Repository.Repository
 import org.example.project.provideHttpClient
 
 class RepositoryImpl() : Repository {
@@ -37,6 +39,57 @@ class RepositoryImpl() : Repository {
             val apiResponse: DeepFakeVideoResponse = response.body()
             emit(ApiResult.Success(apiResponse))
 
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        }
+    }
+
+    override suspend fun uploadAudioToDeepFakeServer(audioUrl: ByteArray): Flow<ApiResult<AudioResponse>> =flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = provideHttpClient().submitFormWithBinaryData(
+                url = "${Constants.BASE_URL}${Constants.VIDEO_ROUTE}",
+                formData = formData {
+                    append(
+                        "audio",
+                        audioUrl,
+                        Headers.build {
+                            append(HttpHeaders.ContentType, "audio/mpeg")
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"audio.mp3\"")
+                        }
+                    )
+                }
+            )
+
+            val apiResponse: AudioResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        }
+
+    }
+
+    override suspend fun imagePrediction(imageUri: ByteArray): Flow<ApiResult<ImageResponse>> =flow{
+        emit(ApiResult.Loading)
+
+        try {
+            val response: HttpResponse = provideHttpClient().submitFormWithBinaryData(
+                url = "${Constants.BASE_URL}${Constants.IMAGE_ROUTE}",
+                formData = formData {
+                    append(
+                        "image",
+                        imageUri,
+                        Headers.build {
+                            append(HttpHeaders.ContentType, "image/jpeg") // or "image/png"
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"image.jpg\"")
+                        }
+                    )
+                }
+            )
+
+            val apiResponse: ImageResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
         } catch (e: Exception) {
             emit(ApiResult.Error(e.message ?: "Unknown error"))
         }
