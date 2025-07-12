@@ -35,6 +35,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.example.project.data.ApiResponse.DeepFakeVideoResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -73,36 +74,6 @@ fun ScreenA(navController: NavController) {
      Text("Scrren B")
     }
 }
-//
-//@Composable
-//fun ScreenB() {
-//
-//    val launcher = rememberFilePickerLauncher(
-//        title = "Custom title",
-//        type = FileKitType.File(extensions = listOf("pdf", "docx","mp4", "avi", "mkv", "mov", "webm")),
-//        dialogSettings = FileKitDialogSettings.createDefault()
-//    ) { file ->
-//        // Handle the file
-//        if (file != null) {
-//            // Do something with the file
-//            println(file.path)
-//        }else{
-//            println("No file selected")
-//        }
-//    }
-//    Column {
-//        Text(text = "Hello Screen B!")
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Button(
-//            onClick = {
-//                launcher.launch()
-//            }
-//        ) {
-//            Text("Pick a file")
-//        }
-//    }
-//
-//}
 
 @Composable
 fun ScreenB() {
@@ -197,10 +168,4 @@ fun provideHttpClient():HttpClient{
     }
     return client
 }
-@Serializable
-data class DeepFakeVideoResponse(
-    val message: String,
-    val prediction: String,
-    val score: Double
-)
 

@@ -1,0 +1,44 @@
+package org.example.project.data.Repository
+
+import com.example.deepshield.Constants.Constants
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import org.example.project.data.ApiResponse.DeepFakeVideoResponse
+import org.example.project.data.stateHandler.ApiResult
+import org.example.project.domain.Repository
+import org.example.project.provideHttpClient
+
+class RepositoryImpl() : Repository {
+    override suspend fun uploadVideoToDeepFakeServer(
+        videoBytes: ByteArray
+    ): Flow<ApiResult<DeepFakeVideoResponse>> = flow {
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse = provideHttpClient().submitFormWithBinaryData(
+                url = "${Constants.BASE_URL}${Constants.VIDEO_ROUTE}",
+                formData = formData {
+                    append(
+                        "video",
+                        videoBytes,
+                        Headers.build {
+                            append(HttpHeaders.ContentType, "video/mp4")
+                            append(HttpHeaders.ContentDisposition, "form-data; name=\"video\"; filename=\"video.mp4\"")
+                        }
+                    )
+                }
+            )
+
+            val apiResponse: DeepFakeVideoResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+
+        } catch (e: Exception) {
+            emit(ApiResult.Error(e.message ?: "Unknown error"))
+        }
+    }
+}
