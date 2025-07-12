@@ -10,7 +10,7 @@ import org.koin.dsl.module
 val module = module {
     factory{ RepositoryImpl() }
     factory { UploadVideoToDeepFakeServerUseCase (repository = get()) }
-    factory { MyViewModel(uploadVideoToDeepFakeServerUseCase = get()) }
+
 }
 
 fun main() {

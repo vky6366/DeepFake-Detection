@@ -7,3 +7,9 @@ object HOMESCREEN
 
 @Serializable
 object VIDEOUPLOADSCREEN
+
+@Serializable
+object AUDIOUPLOADSCREEN
+
+@Serializable
+object IMAGEUPLOADSCREEN

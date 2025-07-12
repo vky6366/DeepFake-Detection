@@ -7,14 +7,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.example.project.data.stateHandler.ApiResult
+import org.example.project.data.stateHandler.AudioResponseState
 import org.example.project.data.stateHandler.DeepFakeVideoResponseState
+import org.example.project.data.stateHandler.ImageResponseState
+import org.example.project.domain.UseCase.UploadAudioToDeepFakeServerUseCase
+import org.example.project.domain.UseCase.UploadImageUseCase
 import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
 
 
-class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToDeepFakeServerUseCase): ViewModel() {
+class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToDeepFakeServerUseCase,
+                  private val uploadAudioToDeepFakeServerUseCase: UploadAudioToDeepFakeServerUseCase,
+                  private val uploadImageUseCase: UploadImageUseCase
+): ViewModel() {
 
     private val _uploadDeepFakeVideoState = MutableStateFlow(DeepFakeVideoResponseState())
     val uploadDeepFakeVideoState = _uploadDeepFakeVideoState.asStateFlow()
+
+    private val _uploadAudioToServerState = MutableStateFlow(AudioResponseState())
+
+    val uploadAudioToServerState = _uploadAudioToServerState.asStateFlow()
+
+    private val _imagePredictionState = MutableStateFlow(ImageResponseState())
+
+    val imagePredictionState = _imagePredictionState.asStateFlow()
 
     // same for others...
 
@@ -35,5 +50,47 @@ class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToD
             }
         }
     }
+
+    fun uploadAudioToDeepFakeServer(audioUrl: ByteArray) {
+        viewModelScope.launch {
+            uploadAudioToDeepFakeServerUseCase.invoke(audioUrl).collectLatest { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        _uploadAudioToServerState.value = AudioResponseState(isLoading = true)
+                    }
+
+                    is ApiResult.Error -> {
+                        _uploadAudioToServerState.value =
+                            AudioResponseState(isLoading = false, error = result.message)
+                    }
+
+                    is ApiResult.Success -> {
+                        _uploadAudioToServerState.value = AudioResponseState(isLoading = false, data = result.data)
+                    }
+                }
+            }
+        }
+    }
+
+    fun imagePrediction(imageUri: ByteArray){
+        viewModelScope.launch {
+           uploadImageUseCase.invoke(imageUri=imageUri).collectLatest {result->
+                when(result){
+                    is ApiResult.Loading->{
+                        _imagePredictionState.value =ImageResponseState(isLoading = true)
+                    }
+                    is ApiResult.Error->{
+                        _imagePredictionState.value = ImageResponseState(isLoading = false, error = result.message)
+                    }
+                    is ApiResult.Success->{
+                        _imagePredictionState.value = ImageResponseState(isLoading = false, data = result.data)
+                    }
+                }
+
+            }
+
+        }
+    }
+
 
 }
