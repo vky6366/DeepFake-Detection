@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import org.example.project.Presentation.Screens.AudioUploadScreen
 import org.example.project.Presentation.Screens.HomeScreenUI
 import org.example.project.Presentation.Screens.ImageUploadScreen
+import org.example.project.Presentation.Screens.NewsCheckScreen
 import org.example.project.Presentation.Screens.VideoUploadScreen
 import org.example.project.Presentation.ViewModel.MyViewModel
 import org.example.project.data.Repository.RepositoryImpl
@@ -42,6 +43,10 @@ import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
         }
         composable<IMAGEUPLOADSCREEN> {
             ImageUploadScreen(viewModel = viewModel)
+
+        }
+        composable<NEWSUPLOADSCREEN> {
+            NewsCheckScreen(viewModel = viewModel)
 
         }
     }
