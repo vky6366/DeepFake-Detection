@@ -10,6 +10,8 @@ import org.example.project.data.stateHandler.ApiResult
 import org.example.project.data.stateHandler.AudioResponseState
 import org.example.project.data.stateHandler.DeepFakeVideoResponseState
 import org.example.project.data.stateHandler.ImageResponseState
+import org.example.project.data.stateHandler.NewsPredictionState
+import org.example.project.domain.UseCase.NewsPredictionUseCase
 import org.example.project.domain.UseCase.UploadAudioToDeepFakeServerUseCase
 import org.example.project.domain.UseCase.UploadImageUseCase
 import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
@@ -17,7 +19,8 @@ import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
 
 class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToDeepFakeServerUseCase,
                   private val uploadAudioToDeepFakeServerUseCase: UploadAudioToDeepFakeServerUseCase,
-                  private val uploadImageUseCase: UploadImageUseCase
+                  private val uploadImageUseCase: UploadImageUseCase,
+                  private val newsPredictionUseCase: NewsPredictionUseCase
 ): ViewModel() {
 
     private val _uploadDeepFakeVideoState = MutableStateFlow(DeepFakeVideoResponseState())
@@ -30,6 +33,10 @@ class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToD
     private val _imagePredictionState = MutableStateFlow(ImageResponseState())
 
     val imagePredictionState = _imagePredictionState.asStateFlow()
+
+    private val _newPredictionState = MutableStateFlow(NewsPredictionState())
+
+    val newPredictionState = _newPredictionState.asStateFlow()
 
     // same for others...
 
@@ -89,6 +96,25 @@ class MyViewModel(private val uploadVideoToDeepFakeServerUseCase: UploadVideoToD
 
             }
 
+        }
+    }
+
+    fun newPrediction(claim: String) {
+        viewModelScope.launch {
+            newsPredictionUseCase.invoke(claim = claim).collectLatest {result->
+                when(result){
+                    is ApiResult.Loading->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = true)
+                    }
+                    is ApiResult.Error->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = false, error = result.message)
+                    }
+                    is ApiResult.Success->{
+                        _newPredictionState.value = NewsPredictionState(isLoading = false, data = result.data)
+                    }
+                }
+
+            }
         }
     }
 

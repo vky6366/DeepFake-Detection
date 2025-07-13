@@ -4,6 +4,8 @@ import com.example.deepshield.Constants.Constants
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.flow
 import org.example.project.data.ApiResponse.AudioResponse
 import org.example.project.data.ApiResponse.DeepFakeVideoResponse
 import org.example.project.data.ApiResponse.ImageResponse
+import org.example.project.data.ApiResponse.NewResponse
 import org.example.project.data.stateHandler.ApiResult
 import org.example.project.domain.Repository.Repository
 import org.example.project.provideHttpClient
@@ -93,5 +96,20 @@ class RepositoryImpl() : Repository {
         } catch (e: Exception) {
             emit(ApiResult.Error(e.message ?: "Unknown error"))
         }
+    }
+
+    override suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>> =flow{
+        emit(ApiResult.Loading)
+        try {
+            val response: HttpResponse =provideHttpClient().get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
+                parameter("claim",claim)
+            }
+
+            val apiResponse: NewResponse = response.body()
+            emit(ApiResult.Success(apiResponse))
+        }catch (e:Exception){
+            emit(ApiResult.Error(e.message.toString()))
+        }
+
     }
 }
