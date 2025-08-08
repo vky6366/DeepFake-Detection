@@ -23,8 +23,26 @@ This web-based system bridges cutting-edge machine learning with a user-friendly
 - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
 
 
+## Project Structure :
+````
+deepfake/
+├── public/                     # Static files (e.g. favicon)
+├── src/
+│   ├── api/                    # Axios or Fetch wrapper
+│   ├── assets/                 # Icons, animations, images
+│   ├── components/             # Reusable UI components
+│   ├── constants/              # API URL, status codes
+│   ├── context/                # App state, Auth, Prediction results
+│   ├── pages/                  # Page-level components (e.g., Home, Result)
+│   ├── services/               # API services (video upload, prediction, heatmap)
+│   ├── styles/                 # CSS/SCSS/Tailwind
+│   ├── App.jsx                 # Main component
+│   └── main.jsx                # App entry point
+├── .env                        # VITE_API_BASE_URL, etc.
+├── vite.config.js              # Vite config
+└── package.json
 
-
+````
 
 
 
