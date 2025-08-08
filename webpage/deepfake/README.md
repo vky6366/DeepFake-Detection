@@ -8,6 +8,20 @@ Built with React.js for a modern, responsive UI and Axios for efficient network 
 This web-based system bridges cutting-edge machine learning with a user-friendly online interface, enabling anyone to verify video content from any device with a web browser  without needing to install an app.
 
 
+# Features
+- Upload and analyze videos directly in the browser.
+- Real-time predictions (Fake/Real) with probability score.
+- Optional Grad-CAM heatmap visualization for fake detections.
+-  Modern, responsive UI optimized for desktop and mobile browsers.
+- Fast & secure API communication via Axios with CORS handling
+
+## Technologies Used:
+- [React.js +vite](https://vite.dev/)
+- [Axios](https://www.npmjs.com/package/axios)
+- [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [TailwindCSS](https://tailwindcss.com/)
+- [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+
 
 
 
