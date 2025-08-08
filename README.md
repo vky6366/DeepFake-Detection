@@ -63,7 +63,7 @@ Base Directory:
 |      
 |-📁Utils
 |            
-|-📁Web
+|-📁Website
 ```
 ## 📦 Requirements
 Install all dependencies using:
