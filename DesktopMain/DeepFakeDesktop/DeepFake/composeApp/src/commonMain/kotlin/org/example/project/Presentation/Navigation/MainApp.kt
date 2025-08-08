@@ -8,9 +8,11 @@ import androidx.navigation.compose.rememberNavController
 import org.example.project.Presentation.Screens.AudioUploadScreen
 import org.example.project.Presentation.Screens.HomeScreenUI
 import org.example.project.Presentation.Screens.ImageUploadScreen
+import org.example.project.Presentation.Screens.NewsCheckScreen
 import org.example.project.Presentation.Screens.VideoUploadScreen
 import org.example.project.Presentation.ViewModel.MyViewModel
 import org.example.project.data.Repository.RepositoryImpl
+import org.example.project.domain.UseCase.NewsPredictionUseCase
 import org.example.project.domain.UseCase.UploadAudioToDeepFakeServerUseCase
 import org.example.project.domain.UseCase.UploadImageUseCase
 import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
@@ -20,7 +22,8 @@ import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
     val viewModel = remember {
         MyViewModel(uploadVideoToDeepFakeServerUseCase = UploadVideoToDeepFakeServerUseCase(repository = RepositoryImpl()),
             uploadAudioToDeepFakeServerUseCase = UploadAudioToDeepFakeServerUseCase(repository = RepositoryImpl()),
-            uploadImageUseCase = UploadImageUseCase(repository = RepositoryImpl())
+            uploadImageUseCase = UploadImageUseCase(repository = RepositoryImpl()),
+            newsPredictionUseCase = NewsPredictionUseCase(repository = RepositoryImpl())
         )
 
     }
@@ -40,6 +43,10 @@ import org.example.project.domain.UseCase.UploadVideoToDeepFakeServerUseCase
         }
         composable<IMAGEUPLOADSCREEN> {
             ImageUploadScreen(viewModel = viewModel)
+
+        }
+        composable<NEWSUPLOADSCREEN> {
+            NewsCheckScreen(viewModel = viewModel)
 
         }
     }

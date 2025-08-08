@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.example.project.data.ApiResponse.AudioResponse
 import org.example.project.data.ApiResponse.DeepFakeVideoResponse
 import org.example.project.data.ApiResponse.ImageResponse
+import org.example.project.data.ApiResponse.NewResponse
 import org.example.project.data.stateHandler.ApiResult
 
 interface Repository {
@@ -12,6 +13,8 @@ interface Repository {
     suspend fun uploadAudioToDeepFakeServer(audioUrl: ByteArray):Flow<ApiResult<AudioResponse>>
 
     suspend fun imagePrediction(imageUri: ByteArray):Flow<ApiResult<ImageResponse>>
+
+    suspend fun newsPrediction(claim: String): Flow<ApiResult<NewResponse>>
 
 
 }

@@ -13,3 +13,6 @@ object AUDIOUPLOADSCREEN
 
 @Serializable
 object IMAGEUPLOADSCREEN
+
+@Serializable
+object NEWSUPLOADSCREEN
