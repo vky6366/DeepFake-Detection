@@ -160,13 +160,6 @@ override suspend fun uploadAudioToDeepFakeServer(
             val response: HttpResponse =httpClient.get("${Constants.BASE_URL}${Constants.NEWS_ROUTE}"){
                 parameter("claim",claim)
             }
-//            val response: HttpResponse = KtorClient.client.get {
-//                url {
-//                    takeFrom(Constants.BASE_URL) // e.g., "http://10.0.2.2:5000"
-//                    appendPathSegments(Constants.NEWS_ROUTE) // e.g., "fact-check"
-//                    parameters.append("claim", claim) // ?claim=something
-//                }
-//            }
 
             val apiResponse: NewResponse = response.body()
             Log.d("PREDICTION", apiResponse.toString())

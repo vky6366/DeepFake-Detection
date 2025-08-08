@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.example.project.Presentation.Navigation.AUDIOUPLOADSCREEN
 import org.example.project.Presentation.Navigation.IMAGEUPLOADSCREEN
+import org.example.project.Presentation.Navigation.NEWSUPLOADSCREEN
 import org.example.project.Presentation.Navigation.VIDEOUPLOADSCREEN
 
 
@@ -61,7 +62,7 @@ fun HomeScreenUI(navController: NavController) {
                            navController.navigate(AUDIOUPLOADSCREEN)
                         }
                         DashboardCard("News", Color(0xFFE1F5FE), "📰") {
-                            println("📰 News Clicked")
+                            navController.navigate(NEWSUPLOADSCREEN)
                         }
                     }
                 }

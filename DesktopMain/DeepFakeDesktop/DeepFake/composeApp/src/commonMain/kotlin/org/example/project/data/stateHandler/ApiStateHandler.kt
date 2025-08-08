@@ -3,6 +3,7 @@ package org.example.project.data.stateHandler
 import org.example.project.data.ApiResponse.AudioResponse
 import org.example.project.data.ApiResponse.DeepFakeVideoResponse
 import org.example.project.data.ApiResponse.ImageResponse
+import org.example.project.data.ApiResponse.NewResponse
 
 sealed class ApiResult<out T> {
     object Loading : ApiResult<Nothing>()
@@ -24,5 +25,12 @@ data class AudioResponseState(
 data class ImageResponseState(
     val isLoading: Boolean = false,
     val data: ImageResponse? = null,
+    val error: String = ""
+)
+
+
+data class NewsPredictionState(
+    val isLoading: Boolean = false,
+    val data: NewResponse? = null,
     val error: String = ""
 )
