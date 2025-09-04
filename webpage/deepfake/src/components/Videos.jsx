@@ -119,7 +119,7 @@ export default function Video() {
 
                 <h2 className="text-3xl font-semibold text-center text-[#0D47A1] mb-4">Upload a Video</h2>
 
-                {/* form fot the file */}
+                {/* form for the file */}
                 <form className="flex flex-col gap-6 items-center" onSubmit={handleSubmit}>
 
                     <label className="cursor-pointer upload-box flex flex-col items-center gap-4 p-6 rounded-lg bg-white w-full">
