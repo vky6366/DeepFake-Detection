@@ -78,7 +78,7 @@ export default function Video() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const file = fileRef.current?.files?.[0];
-        if (!file) return alert("Please select a video before uploading.");
+        if (!file) return alert("Please select a video file before uploading.");
 
         // resetting the state
         // loading till the json return, result is null
