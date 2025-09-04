@@ -66,7 +66,6 @@ export default function Image() {
 
             {/* the section for uploading images */}
             <section className="card p-8 w-full max-w-xl bg-blue-300">
-
                 <h2 className="text-3xl font-semibold text-center text-[#0D47A1] mb-4">Upload an Image</h2>
 
                 {/* form for the file */}
