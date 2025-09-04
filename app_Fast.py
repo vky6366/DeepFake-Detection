@@ -146,7 +146,7 @@ def google_news_search(query):
         })
     return structured
 
-app = FastAPI(title="Deepfake Detection API")
+
 
 app.mount("/static", StaticFiles(directory=WEBSITE_FOLDER), name="static")
 @app.get("/")
