@@ -21,7 +21,7 @@ export default function Audio() {
     // only files of type mp3 are allowed 
     const handleFileChange = (e) => {
         const f = e.target.files[0];
-        setFileName(f ? f.name : "Drop your Audio here or click to browse");
+        setFileName(f ? f.name : "Drop your Audio file here or click to browse");
     };
 
     //  handling the  audio uploading  and submission  of the audio
@@ -29,14 +29,14 @@ export default function Audio() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const file = fileRef.current?.files?.[0];
-        if (!file) return alert("Please select an audio file.");
+        if (!file) return alert("Please select an audio file before uploading.");
 
         // resetting the state
         // loading till the json return, result is null
         setLoading(true);
         setPrediction(null);
 
-        // the formfor uploading the video to the backend
+        // the form for uploading the video to the backend
         try {
             // backend expects 'file'
             const formData = new FormData();
