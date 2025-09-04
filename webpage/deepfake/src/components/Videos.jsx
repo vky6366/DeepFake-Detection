@@ -50,7 +50,7 @@ export default function Video() {
 
             //   checking the response
             if (!res.ok) return;
-            const data = await resp.json();
+            const data = await res.json();
             //   data in return in the form of bytes array
             const bytes = data.heatmap_bytes || data.image_bytes || data.frame_bytes;
 
